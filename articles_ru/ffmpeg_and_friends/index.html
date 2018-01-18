@@ -1,0 +1,141 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  
+  
+    <meta charset="utf-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    
+    
+    
+    <link rel="shortcut icon" href="../../img/favicon.ico">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=0" />
+    <title>FFMPEG And Friends - Kvantos Apparatus</title>
+    <link href="../../css/bootstrap-3.3.7.min.css" rel="stylesheet">
+    <link href="../../css/font-awesome-4.7.0.css" rel="stylesheet">
+    <link href="../../css/base.css" rel="stylesheet">
+    <link rel="stylesheet" href="../../css/highlight.css">
+    <!-- HTML5 shim and Respond.js IE8 support of HTML5 elements and media queries -->
+    <!--[if lt IE 9]>
+        <script src="https://oss.maxcdn.com/libs/html5shiv/3.7.0/html5shiv.js"></script>
+        <script src="https://oss.maxcdn.com/libs/respond.js/1.3.0/respond.min.js"></script>
+    <![endif]-->
+
+    <script src="../../js/jquery-3.2.1.min.js"></script>
+    <script src="../../js/bootstrap-3.3.7.min.js"></script>
+    <script src="../../js/highlight.pack.js"></script>
+    
+    <base target="_top">
+    <script>
+      var base_url = '../..';
+      var is_top_frame = false;
+        
+        var pageToc = [
+          {title: "FFMPEG and Friends", url: "#ffmpeg-and-friends", children: [
+          ]},
+        ];
+
+    </script>
+    <script src="../../js/base.js"></script>
+      <script src="../../search/require.js"></script>
+      <script src="../../search/search.js"></script> 
+</head>
+
+<body>
+<script>
+if (is_top_frame) { $('body').addClass('wm-top-page'); }
+</script>
+
+
+
+<div class="container-fluid wm-page-content">
+<br>
+    
+
+    <h2 id="ffmpeg-and-friends">FFMPEG and Friends</h2>
+<p>Всё таки как-то уныло ехать в маршрутке. Люди с серьёзными лицами держатся за поручни и задумчиво смотрят в окно. Ведь это очень серьёзное занятие, недайбох что — передать деньги за проезд с задней двери. Или если вдруг открыть/закрыть окно или люк. Чтоб как-то отвлечься от этой повседневной суеты, сначала слушал музыку, всё было хорошо, пока я не запилил абсолютно всю музыку которая у меня была, до дыр. И вот мне в голову пришла замечательная идея, а почему бы не смотреть видео? Оооо, точно! Всё таки клёво когда дома есть отдельный сервер. Мне не нужно бдить или оставлять свой комп включенным, пока я сплю или где-то шастаю, мини сервер тихо шуршит электронами. На сервер было залито видео с конференции. И при помощи не хитрого скрипта, преобразовано для телефона.</p>
+<pre><code class="sh">#!/bin/bash
+
+#### Setup ####
+# Эта опция указывает в какой директории лежат видео файлы
+# которые следует конвертировать
+DIR=&quot;/var/media/video/Planetes/&quot;
+
+# А эта опция указывает папку в которую следует сохранять 
+# сконвертированное видео
+SAVE=&quot;/var/media/video/phone/Planetes/&quot;
+
+# Эта переменная определяет формат видео файлов которые следует
+# конвертировать
+FORMAT_TYPE=&quot;mkv&quot;
+###############
+
+IFS=$'\n'
+# Стоит заметить, что этот скрипт осуществляет поиск видео
+# по всем папкам и подпакам
+for i in `find $DIR -depth -iname *.$FORMAT_TYPE -type f`
+do
+name=`basename &quot;$i&quot; .$FORMAT_TYPE`
+    if [ -e &quot;$SAVE/$name.mp4&quot; ]
+    then
+    echo &quot;all fine&quot; &gt; /dev/null
+    else
+
+    # Стоит обратить внимание на параметр -threads 4
+    # люди из форумов советуют ставить его равным количеству
+    # процессоров/ядер компьютера
+    ffmpeg -v 0 -y -threads 4 -i &quot;$i&quot; -r 29.97 -vcodec libx264 -s 480x272 -flags +loop -cmp +chroma -deblockalpha 0 -deblockbeta 0 -crf 24 -bt 256k -refs 1 -coder 0 -me_method umh -me_range 16 -subq 5 -partitions +parti4x4+parti8x8+partp8x8 -g 250 -keyint_min 25 -level 30 -qmin 10 -qmax 51 -trellis 2 -sc_threshold 40 -i_qfactor 0.71 -acodec libfaac -ab 128k -ar 48000 -ac 2 $SAVE/$name.mp4 1&gt;/dev/null 2&gt;/dev/null
+    fi
+done
+</code></pre>
+
+<p>Этот скрипт конвертирует видео в формат <code>.mp4</code>, понятном для телефона, из любого другого не понятного формата. Например моя Nokla тоже прекрасно воспроизводит эти файлы. Так вот, как обычно бывает, счастье не могло длится вечно и всё видео с конференций я пересмотрел. Тогда я решил сконвертить остальное видео. Но с остальным видео одна проблема, очень часто в этом видео несколько audio потоков, например перевод на разных языках. И по умолчанию конвертируется не всегда тот что нужен. В таком случае, нужно понять какой именно поток нам нужен. Узнать это можно при помощи всё того же ffmpeg:</p>
+<pre><code class="sh">$ ffmpeg -i Planetes_01.mkv
+[ шум вырезан ]
+    Stream #0.0: Video: mpeg4, yuv420p, 1280x720 [PAR 1:1 DAR 16:9], 23.98 tbr, 1k tbn, 23.98 tbc
+    Stream #0.1(rus): Audio: vorbis, 48000 Hz, stereo, s16
+    Stream #0.2(jpn): Audio: vorbis, 48000 Hz, stereo, s16
+    Stream #0.3(rus): Subtitle: 0x0000
+</code></pre>
+
+<p>Вот, видим четыре потока: видео, русский, японский и субтитры. В таком случае, скрипт немного изменится, добавится опция <code>-map 0:0 -map 0:1</code> которая указывает какие потоки должны быть на выходе.</p>
+<pre><code class="sh">ffmpeg -v 0 -y -threads 4 -i &quot;$i&quot; -map 0:0 -map 0:1 -r 29.97
+</code></pre>
+
+<p>Опция <code>-map</code> указана дважды, <strong>первым мапится видео поток, вторым аудио</strong>. В данном случае меня интересует русский язык, поток <strong>#1</strong> <code>Stream #0.1(rus)</code>.  Например, если я захочу слушать японский язык, то следует выбрать второй поток <code>-map 0:2</code>. Если видео поток не мапить, то он и не сохранится в результирующем файле.</p>
+
+  <br>
+    
+
+  <div class="row wm-article-nav-buttons" role="navigation" aria-label="navigation">
+    
+    <div class="wm-article-nav pull-right">
+      <a href="../6_rules/" class="btn btn-xs btn-default pull-right">
+        Next
+        <i class="fa fa-chevron-right" aria-hidden="true"></i>
+      </a>
+      <a href="../6_rules/" class="btn btn-xs btn-link">
+        6 правил творческого подхода
+      </a>
+    </div>
+    
+    <div class="wm-article-nav">
+      <a href="../.." class="btn btn-xs btn-default pull-left">
+        <i class="fa fa-chevron-left" aria-hidden="true"></i>
+        Previous</a><a href="../.." class="btn btn-xs btn-link">
+        Home
+      </a>
+    </div>
+    
+  </div>
+
+    <br>
+</div>
+
+<footer class="col-md-12 wm-page-content">
+  <p>Documentation built with <a href="http://www.mkdocs.org/">MkDocs</a> using <a href="https://github.com/gristlabs/mkdocs-windmill">Windmill</a> theme by Grist Labs.</p>
+</footer>
+
+</body>
+</html>

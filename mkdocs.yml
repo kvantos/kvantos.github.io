@@ -1,0 +1,13 @@
+site_name: Kvantos Apparatus
+theme:
+    name: null
+    custom_dir: 'mkdocs_windmill'
+
+extra:
+    article_nav_top: false
+
+pages:
+    - "Home": 'index.md'
+    - "Articles ru":
+        - "FFMPEG And Friends": "articles_ru/ffmpeg_and_friends.md"
+        - "6 правил творческого подхода": "articles_ru/6_rules.md"

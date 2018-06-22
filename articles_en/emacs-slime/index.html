@@ -1,0 +1,202 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  
+  
+    <meta charset="utf-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    
+    
+    
+    <link rel="shortcut icon" href="../../img/favicon.ico">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=0" />
+    <title>Cooperation between Emacs SLIME and docker-compose by SWANK server - Kvantos Apparatus</title>
+    <link href="../../css/bootstrap-3.3.7.min.css" rel="stylesheet">
+    <link href="../../css/font-awesome-4.7.0.css" rel="stylesheet">
+    <link href="../../css/base.css" rel="stylesheet">
+    <link rel="stylesheet" href="../../css/highlight.css">
+    <!-- HTML5 shim and Respond.js IE8 support of HTML5 elements and media queries -->
+    <!--[if lt IE 9]>
+        <script src="https://oss.maxcdn.com/libs/html5shiv/3.7.0/html5shiv.js"></script>
+        <script src="https://oss.maxcdn.com/libs/respond.js/1.3.0/respond.min.js"></script>
+    <![endif]-->
+
+    <script src="../../js/jquery-3.2.1.min.js"></script>
+    <script src="../../js/bootstrap-3.3.7.min.js"></script>
+    <script src="../../js/highlight.pack.js"></script>
+    
+    <base target="_top">
+    <script>
+      var base_url = '../..';
+      var is_top_frame = false;
+        
+        var pageToc = [
+          {title: "Cooperation between Emacs SLIME and docker-compose by SWANK server - Contemporary Common Lisp development", url: "#cooperation-between-emacs-slime-and-docker-compose-by-swank-server-contemporary-common-lisp-development", children: [
+          ]},
+          {title: "Good compatibility between Emacs and Common Lisp", url: "#good-compatibility-between-emacs-and-common-lisp", children: [
+          ]},
+          {title: "Motivation", url: "#motivation", children: [
+          ]},
+          {title: "Environment", url: "#environment", children: [
+          ]},
+          {title: "Sample application", url: "#sample-application", children: [
+          ]},
+          {title: "Let the port of the SWANK server to dcker-compose.", url: "#let-the-port-of-the-swank-server-to-dcker-compose", children: [
+          ]},
+          {title: "Dockerfile", url: "#dockerfile", children: [
+          ]},
+          {title: "From here processes, not related to SWANK.", url: "#from-here-processes-not-related-to-swank", children: [
+          ]},
+          {title: "Connect from Emacs", url: "#connect-from-emacs", children: [
+          ]},
+          {title: "&lt; {12345678}&gt;", url: "#12345678", children: [
+              {title: "Conclusion", url: "#conclusion" },
+          ]},
+        ];
+
+    </script>
+    <script src="../../js/base.js"></script>
+      <script src="../../search/require.js"></script>
+      <script src="../../search/search.js"></script> 
+</head>
+
+<body>
+<script>
+if (is_top_frame) { $('body').addClass('wm-top-page'); }
+</script>
+
+
+
+<div class="container-fluid wm-page-content">
+<br>
+    
+
+    <h3 id="cooperation-between-emacs-slime-and-docker-compose-by-swank-server-contemporary-common-lisp-development">Cooperation between Emacs SLIME and docker-compose by SWANK server - Contemporary Common Lisp development</h3>
+<h2 id="good-compatibility-between-emacs-and-common-lisp">Good compatibility between Emacs and Common Lisp</h2>
+<p>Using the plug-in called SLIME, and if standing Common Lisp Processing system over Emacs to connect, or if standing some other to connect, it’s possible to let REPL and its supplement work. This connection of Emacs and Common Lisp Processing system is active, when we stand SWANK server on the Processing system. 
+Connecting with SLINE to a locally Processing system is often done. There are lots of documents related to that. But docker, especially when developing Common Lisp products in the modern docker-compose environment, we cannot find many documents related to method to develop with the connection between Emacs and Processing system. 
+So in this entry connecting a typical Common Lisp application (Caveman 2) stood with docker-compose to Emacs, approaching the acting code through SWANK, and trying to interrupt its operation. Here we assume that basic setting of SLINE over Emacs is done. </p>
+<h2 id="motivation">Motivation</h2>
+<p>I have the software, which I am updating daily, and this is docker-ised and it stands on docker-compose. But in the development environment, there were things not docker-ised yet around the Editor. It means that in this Emacs to edit this software, we connected to Processing system for syntax high light and supplement, what we connected was not Processing system over docker-compose, but Processing system locally stood. Therefore, sometimes supplement did not work properly, or/and not well read the libraries. It enforced developers difficulties both on Docker and on the local. 
+This time we try to avoid this uncomfortable situation. We prepare the environment to develop on the acting code under one environment, i.e. coding environment = acting environment of the server. </p>
+<h2 id="environment">Environment</h2>
+<pre><code class="sh">cat /proc/version
+Linux version 4.4.104-39-default (geeko@buildhost) (gcc version 4.8.5 (SUSE Linux) ) #1 SMP Thu Jan 4 08:11:03 UTC 2018 (7db1912)
+lsb_release -a
+LSB Version: n/a
+Distributor ID: openSUSE project
+Description: openSUSE Leap 42.3
+Release: 42.3
+Codename: n/a
+</code></pre>
+
+<pre><code class="sh">ros version
+build with gcc (SUSE Linux) 4.8.5
+libcurl=7.37.0
+Quicklisp=2017-03-06
+Dist=2017-08-30
+lispdir='/usr/local/etc/roswell/'
+homedir='/home/windymelt/.roswell/'
+configdir='/home/windymelt/.roswell/'
+</code></pre>
+
+<pre><code class="sh">ros run -- -version
+SBCL 1.4.0
+</code></pre>
+
+<h2 id="sample-application">Sample application</h2>
+<p>We prepared Sample application. Only if following the procedures, you can connect with SWANK.[https://github.com/windymelt/cl-sample-docker-swank]</p>
+<h2 id="let-the-port-of-the-swank-server-to-dcker-compose">Let the port of the SWANK server to dcker-compose.</h2>
+<p>To transport between Emacs and Processing system, we need to stand the SWANK server in the Processing system. For that, first display the port on the host to let the SWANK server use, and to connect from Emacs. 
+Here the acting service of Processing system is app, and we build a container with using Dockerfile written below. And we display to see on the host, because Web application (caveman 2) uses the No.5000. And the SWANK server uses the No.6005. We can fix this setting as desired, since we can fix, when connecting from Emacs. </p>
+<pre><code class="sh"># docker-compose.yml
+version: '3'
+services:
+  app:
+    build: .
+    ports:
+      - &quot;6005:6005&quot; # For development; SWANK port. cf. Dockerfile
+      - &quot;5000:5000&quot;
+</code></pre>
+
+<h2 id="dockerfile">Dockerfile</h2>
+<p>In Dockerfile we describe CMD to stand the SWANK server earlier than standing the application server. 
+Most od Dockerfile is not related to this topic. It’s long. So here I show it partly. </p>
+<pre><code class="sh">CMD [ \
+  &quot;qlot&quot;, &quot;exec&quot;, &quot;ros&quot;, \
+  &quot;-e&quot;, &quot;(ql:quickload :swank)&quot;, \
+  &quot;-e&quot;, &quot;(setf swank::*loopback-interface* \&quot;0.0.0.0\&quot;)&quot;, \
+  &quot;-e&quot;, &quot;(swank:create-server :port 6005 :dont-close t :style :spawn)&quot;, \
+  &quot;-l&quot;, &quot;bundle-libs/bundle.lisp&quot;, \
+  &quot;-S&quot;, &quot;.&quot;, &quot;~/.roswell/bin/clackup&quot;, &quot;--server&quot;, &quot;:woo&quot;, &quot;--address&quot;, &quot;0.0.0.0&quot;, &quot;--port&quot;, &quot;5000&quot;, &quot;app.lisp&quot; \
+]
+</code></pre>
+
+<p>First we stands qlot, which is library localiser. Because of this the library under quicklisp/ will be read (loaded).
+The work of qlot is to fix the setting to use library saved in the local correctly, and to give it to Processing system. Here Processing system stands by ros. On CMD there are long parameters. ros is going to process these in order. Let’s check it together. </p>
+<p>First by -e (ql:quickload :swank), SWANK system is loaded (read). This is necessary to stand the server. Now I guess that it was better to assume -e (asdf:load-system :swank) with the comment of dependence in qlfile, since we use qlot. 
+Next by -e (setf swank::<em>loopback-interface</em> "0.0.0.0") we change the address listening by SWANK. In the Docker environment, IP addresses tend to be modified. Here fixing 0.0.0.0., it helps connecting properly. </p>
+<p>In SWANK there is not any certification scheme, anyone, who is accessing to the socket, can connect to. If you worry about it, you need to connect through ssh (and so on), in this entry we use docker-compose only for the purpose to develop. So no problem. </p>
+<p>Next by -e (swank:create-server :port 6005 :dont-close t :style :spawn) we stand the SWANK server on No.6005. 
+:dont-close t is the setting not to close the connection. Maybe it’s not needed. </p>
+<p>:style :spawn is doing spawn the process in each connection to make multiple connections. If using only one connection, it may be ok to omit. </p>
+<h2 id="from-here-processes-not-related-to-swank">From here processes, not related to SWANK.</h2>
+<p>-l bundle-libs/bundle.lisp is to load libraries depended. 
+qlot can load all the depended libraries to local bundle-libs with qlot bundle command. 
+The bootstrap to load all these libraries is bundle.lisp. 
+Loading it with -l option of ros. 
+-l is the option to do the intended file after loading only. 
+-S is to set the default loading point (asdf:<em>central-registry</em>) of ASDF system to the current directory (here the project root).  Here if putting the ASD fled in the intended directory, ASDF can discover its system. </p>
+<p>In the end,  ~/.roswell/bin/clackup --server :woo --address 0.0.0.0 --port 5000 app.lisp means to stand the Web application with clackup command (supplied by clack package)
+app.lisp is called Clack application. 
+It is like app.psgi in another language mostly. This file will be automatically made, when Caveman2 makes a project. </p>
+<h2 id="connect-from-emacs">Connect from Emacs</h2>
+<p>So now it’s ready. 
+Using docker-compose, we stand Project, let’s connect from Emacs. 
+docker-compose up
+When doing M-x slime-connect, input “localhost”, since the prompt “Host:” is displayed. 
+Next the prompt “Port:” is displayed. 
+We fix the No.6005 port already set. 
+And then the following display is output in the mini buffer. 
+REPL window is displayed, and it becomes possible to operate. </p>
+<p>Connecting to Swank on port 6005..
+Connected. Take this REPL, brother, and may it serve you well.</p>
+<p>Already the code is loaded. So possible to move to the package on the code. </p>
+<p>Assume that there is caveman2 project called ;; hogeapplication</p>
+<p>CL-USER&gt; (in-package :hogeapplication.web)</p>
+<h1 id="_1"><PACKAGE "HOGEAPPLICATION.WEB"></h1>
+<p>HOGEAPPLICATION.WEB&gt; <em>web</em></p>
+<h1 id="12345678">&lt;<WEB> {12345678}&gt;</h1>
+<p>HOGEAPPLICATION.WEB&gt; (render #P"index.html")
+;; by ---hogeapplication.web the template is rendered as well. </p>
+<p>HOGEAPPLICATION.WEB&gt; (clear-routing-rules <em>web</em>)
+;; —All the routing info is disappeared. And the acting application outputs only 404. Let’s try it. </p>
+<h2 id="conclusion">Conclusion</h2>
+<p>On Dockerfile standing the SWANK server, and displaying the port after proper setting, after connecting from Emacs on the host to the Processing system of the acting container on docker-compose, it becomes possible to read the acting application symbols, and to change the acting code. 
+From the info of SWANK, SLIME gives the supplement properties, we can use the faithful completion to the acting application.</p>
+
+  <br>
+    
+
+  <div class="row wm-article-nav-buttons" role="navigation" aria-label="navigation">
+    
+    <div class="wm-article-nav">
+      <a href="../../articles_ru/6_rules/" class="btn btn-xs btn-default pull-left">
+        <i class="fa fa-chevron-left" aria-hidden="true"></i>
+        Previous</a><a href="../../articles_ru/6_rules/" class="btn btn-xs btn-link">
+        6 правил творческого подхода
+      </a>
+    </div>
+    
+  </div>
+
+    <br>
+</div>
+
+<footer class="col-md-12 wm-page-content">
+  <p>Documentation built with <a href="http://www.mkdocs.org/">MkDocs</a> using <a href="https://github.com/gristlabs/mkdocs-windmill">Windmill</a> theme by Grist Labs.</p>
+</footer>
+
+</body>
+</html>

@@ -4,7 +4,7 @@
     
     <url>
      <loc>/</loc>
-     <lastmod>2018-01-18</lastmod>
+     <lastmod>2018-06-22</lastmod>
      <changefreq>daily</changefreq>
     </url>
     
@@ -13,13 +13,23 @@
         
     <url>
      <loc>/articles_ru/ffmpeg_and_friends/</loc>
-     <lastmod>2018-01-18</lastmod>
+     <lastmod>2018-06-22</lastmod>
      <changefreq>daily</changefreq>
     </url>
         
     <url>
      <loc>/articles_ru/6_rules/</loc>
-     <lastmod>2018-01-18</lastmod>
+     <lastmod>2018-06-22</lastmod>
+     <changefreq>daily</changefreq>
+    </url>
+        
+    
+
+    
+        
+    <url>
+     <loc>/articles_en/emacs-slime/</loc>
+     <lastmod>2018-06-22</lastmod>
      <changefreq>daily</changefreq>
     </url>
         

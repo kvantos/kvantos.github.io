@@ -17,14 +17,5 @@
       <description>We live in world, but what does world means to us? The surrounding reality? These are value judgments only. We live on planet Earth and this is our world. Humanity has expanded its habitat, agriculture, electricity transport are the achievements of modern mankind. A industrialized society can manage living conditions. But have we solved all problems? There is a world around us and there is garbage, destruction of natural resources. People began to think they on their own, the crown of evolution.</description>
     </item>
     
-    <item>
-      <title>Udev Device Mapping</title>
-      <link>https://kvantos.github.io/posts/udev-device-mapping/</link>
-      <pubDate>Sun, 06 Dec 2020 22:36:36 +0200</pubDate>
-      
-      <guid>https://kvantos.github.io/posts/udev-device-mapping/</guid>
-      <description>HDD Конечно же это далеко не новость, но тем не менее. В общем возникло желание замапить свой жесткий диск который стоит в домашнем сервере. Так чтоб его можно было сколько угодно раз подключать отключать, а он в системе оставался под одним и тем же именем. Что для этого понадобится? А ничего, Linux, винт и текстовый редактор. В общем можно создать свой отдельный файл с правилом для udev, в который положим правила:</description>
-    </item>
-    
   </channel>
 </rss>

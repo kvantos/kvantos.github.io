@@ -1,38 +1,95 @@
-<?xml version="1.0" encoding="UTF-8"?>
-<urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9">
-
-    
-    <url>
-     <loc>/</loc>
-     <lastmod>2018-06-22</lastmod>
-     <changefreq>daily</changefreq>
-    </url>
-    
-
-    
-        
-    <url>
-     <loc>/articles_ru/ffmpeg_and_friends/</loc>
-     <lastmod>2018-06-22</lastmod>
-     <changefreq>daily</changefreq>
-    </url>
-        
-    <url>
-     <loc>/articles_ru/6_rules/</loc>
-     <lastmod>2018-06-22</lastmod>
-     <changefreq>daily</changefreq>
-    </url>
-        
-    
-
-    
-        
-    <url>
-     <loc>/articles_en/emacs-slime/</loc>
-     <lastmod>2018-06-22</lastmod>
-     <changefreq>daily</changefreq>
-    </url>
-        
-    
-
+<?xml version="1.0" encoding="utf-8" standalone="yes"?>
+<urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9"
+  xmlns:xhtml="http://www.w3.org/1999/xhtml">
+  
+  <url>
+    <loc>https://kvantos.github.io/categories/</loc>
+    <lastmod>2019-11-14T11:25:05-04:00</lastmod>
+  </url>
+  
+  <url>
+    <loc>https://kvantos.github.io/tags/chinese/</loc>
+    <lastmod>2019-11-14T11:25:05-04:00</lastmod>
+  </url>
+  
+  <url>
+    <loc>https://kvantos.github.io/categories/chinese/</loc>
+    <lastmod>2019-11-14T11:25:05-04:00</lastmod>
+  </url>
+  
+  <url>
+    <loc>https://kvantos.github.io/posts/</loc>
+    <lastmod>2019-11-14T11:25:05-04:00</lastmod>
+  </url>
+  
+  <url>
+    <loc>https://kvantos.github.io/</loc>
+    <lastmod>2019-11-14T11:25:05-04:00</lastmod>
+  </url>
+  
+  <url>
+    <loc>https://kvantos.github.io/tags/</loc>
+    <lastmod>2019-11-14T11:25:05-04:00</lastmod>
+  </url>
+  
+  <url>
+    <loc>https://kvantos.github.io/tags/text/</loc>
+    <lastmod>2019-11-14T11:25:05-04:00</lastmod>
+  </url>
+  
+  <url>
+    <loc>https://kvantos.github.io/posts/chinese/</loc>
+    <lastmod>2019-11-14T11:25:05-04:00</lastmod>
+  </url>
+  
+  <url>
+    <loc>https://kvantos.github.io/tags/typography/</loc>
+    <lastmod>2018-03-18T12:13:38+05:30</lastmod>
+  </url>
+  
+  <url>
+    <loc>https://kvantos.github.io/posts/post-5/</loc>
+    <lastmod>2018-03-18T12:13:38+05:30</lastmod>
+  </url>
+  
+  <url>
+    <loc>https://kvantos.github.io/posts/post-1/</loc>
+    <lastmod>2018-03-18T02:01:58+05:30</lastmod>
+  </url>
+  
+  <url>
+    <loc>https://kvantos.github.io/tags/primer/</loc>
+    <lastmod>2018-03-18T02:01:58+05:30</lastmod>
+  </url>
+  
+  <url>
+    <loc>https://kvantos.github.io/categories/todo/</loc>
+    <lastmod>2018-03-18T02:01:58+05:30</lastmod>
+  </url>
+  
+  <url>
+    <loc>https://kvantos.github.io/tags/todo/</loc>
+    <lastmod>2018-03-18T02:01:58+05:30</lastmod>
+  </url>
+  
+  <url>
+    <loc>https://kvantos.github.io/posts/chapter-6/</loc>
+    <lastmod>2017-04-14T11:25:05-04:00</lastmod>
+  </url>
+  
+  <url>
+    <loc>https://kvantos.github.io/categories/story/</loc>
+    <lastmod>2017-04-14T11:25:05-04:00</lastmod>
+  </url>
+  
+  <url>
+    <loc>https://kvantos.github.io/posts/chapter-1/</loc>
+    <lastmod>2017-04-09T10:58:08-04:00</lastmod>
+  </url>
+  
+  <url>
+    <loc>https://kvantos.github.io/tags/scene/</loc>
+    <lastmod>2017-04-09T10:58:08-04:00</lastmod>
+  </url>
+  
 </urlset>

@@ -1,6 +1,6 @@
 <!DOCTYPE html>
 <html><head>
-<title>Categories</title>
+<title>Udev Device Mapping</title>
 
 
 
@@ -10,25 +10,26 @@
 <meta name="google-site-verification" content="">
 <meta content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=0" name="viewport">
 <meta content="telephone=no" name="format-detection">
-<meta name="description" content="">
+<meta name="description" content="Esmeralda">
 <meta name="renderer" content="webkit">
 <meta name="theme-color" content="#ffffff">
 
 
 
-<meta property="og:title" content="Categories" />
-<meta property="og:description" content="Python Programmer, Data Support Engineer, Geek. Believe in OpenSource. I share my findings about Python, Linux, Arduino, Microservices, Cloud and Distributed Computing. Let’s see the shocking truth of my journey into the world of technology." />
-<meta property="og:type" content="website" />
-<meta property="og:url" content="https://kvantos.github.io/categories/" />
-<meta property="og:updated_time" content="2020-12-07T01:05:47+02:00" /><meta property="og:site_name" content="Sergey Kviato Blog" />
+<meta property="og:title" content="Udev Device Mapping" />
+<meta property="og:description" content="Esmeralda" />
+<meta property="og:type" content="article" />
+<meta property="og:url" content="https://kvantos.github.io/posts/udev-device-mapping/" />
+<meta property="article:published_time" content="2020-12-06T22:36:36+02:00" />
+<meta property="article:modified_time" content="2020-12-06T22:36:36+02:00" /><meta property="og:site_name" content="Sergey Kviato Blog" />
 
 
 
 
 
 <meta name="twitter:card" content="summary"/>
-<meta name="twitter:title" content="Categories"/>
-<meta name="twitter:description" content="Python Programmer, Data Support Engineer, Geek. Believe in OpenSource. I share my findings about Python, Linux, Arduino, Microservices, Cloud and Distributed Computing. Let’s see the shocking truth of my journey into the world of technology."/>
+<meta name="twitter:title" content="Udev Device Mapping"/>
+<meta name="twitter:description" content="Esmeralda"/>
 
 
 
@@ -63,7 +64,29 @@
 
 
 
+  
+    <script src="https://kvantos.github.io//js/toc-collapse.js"></script>
+  
 
+
+
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/gitalk@1/dist/gitalk.css">
+<script src="https://cdn.jsdelivr.net/npm/gitalk@1/dist/gitalk.min.js"></script>
+<script src="/vendor/js/md5.min.js"></script>
+<script>
+  var gitalk = new Gitalk({
+  clientID: '88afe0ea00259e8ec100',
+  clientSecret: 'd8be18b804df35493db606de4f58fbb6deefb293',
+  repo: 'kvantos.github.io',
+  owner: 'kvantos',
+  admin: ['kvantos'],
+  id: md5(location.pathname),
+  distractionFreeMode: 'false'
+  });
+  window.onload = function () {
+        gitalk.render('gitalk-container')
+  }
+</script>
 
 
 
@@ -94,9 +117,11 @@
             
             
             
+                
             
             
-            <a class="a-block nav-link-item false" href="/posts">
+            
+            <a class="a-block nav-link-item active" href="/posts">
                 Archive
             </a>
             
@@ -104,11 +129,9 @@
             
             
             
-                
             
             
-            
-            <a class="a-block nav-link-item active" href="/categories">
+            <a class="a-block nav-link-item false" href="/categories">
                 Categories
             </a>
             
@@ -154,6 +177,64 @@ Ported from <a href="https://mak1t0.cc/" target="_blank" rel="noreferrer noopene
 </div><div ref="extraContainer" class="extra-container">
     
     
+    <div class="toc animated-visibility" :class="{ invisible: scrollY <= 140 }">
+
+
+	<div class="toc-content">
+	
+		
+		
+		
+		<center>- CATALOG -</center>
+		
+		
+		<ul>
+			
+				
+				
+					
+						
+						
+						
+						
+							
+								<ul class="collapse" data-toggle="collapse">
+							
+						
+						
+							<li>
+								<a href="#hdd" onclick="onNavClick(`#hdd-nav`)" id="hdd-nav">
+									HDD
+								</a>
+							</li>
+						
+						
+					
+				
+			
+				
+				
+					
+						
+						
+						
+						
+						
+							<li>
+								<a href="#scanner" onclick="onNavClick(`#scanner-nav`)" id="scanner-nav">
+									SCANNER
+								</a>
+							</li>
+						
+						
+					
+				
+			
+		</ul>
+	</div>
+
+</div>
+    
     <div class="pagination">
         <a id="globalBackToTop" class="pagination-action animated-visibility" href="#top" :class="{ invisible: scrollY == 0 }">
             <i class="material-icons pagination-action-icon">
@@ -171,8 +252,6 @@ Ported from <a href="https://mak1t0.cc/" target="_blank" rel="noreferrer noopene
         </a>
         
         
-        
-        
     </div>
 </div>
 <div class="single-column-drawer-container" ref="drawer"
@@ -185,9 +264,11 @@ Ported from <a href="https://mak1t0.cc/" target="_blank" rel="noreferrer noopene
                 
                 
                 
+                    
                 
                 
-                <a class="a-block drawer-menu-item false" href="/posts">
+                
+                <a class="a-block drawer-menu-item active" href="/posts">
                     Archive
                 </a>
                 
@@ -195,11 +276,9 @@ Ported from <a href="https://mak1t0.cc/" target="_blank" rel="noreferrer noopene
                 
                 
                 
-                    
                 
                 
-                
-                <a class="a-block drawer-menu-item active" href="/categories">
+                <a class="a-block drawer-menu-item false" href="/categories">
                     Categories
                 </a>
                 
@@ -224,6 +303,64 @@ Ported from <a href="https://mak1t0.cc/" target="_blank" rel="noreferrer noopene
                 </a>
                 
             
+            
+            <div class="toc">
+
+
+	<div class="toc-content">
+	
+		
+		
+		
+		<center>- CATALOG -</center>
+		
+		
+		<ul>
+			
+				
+				
+					
+						
+						
+						
+						
+							
+								<ul class="collapse" data-toggle="collapse">
+							
+						
+						
+							<li>
+								<a href="#hdd" onclick="onNavClick(`#hdd-nav`)" id="hdd-nav">
+									HDD
+								</a>
+							</li>
+						
+						
+					
+				
+			
+				
+				
+					
+						
+						
+						
+						
+						
+							<li>
+								<a href="#scanner" onclick="onNavClick(`#scanner-nav`)" id="scanner-nav">
+									SCANNER
+								</a>
+							</li>
+						
+						
+					
+				
+			
+		</ul>
+	</div>
+
+</div>
             
         </div>
     </div>
@@ -268,51 +405,127 @@ Ported from <a href="https://mak1t0.cc/" target="_blank" rel="noreferrer noopene
             <div id="content">
 <div ref="streamContainer" class="stream-container">
     <div class="post-list-container post-list-container-shadow">
-        <a class="a-block">
-            <div class="post-item-wrapper post-item-wrapper-no-hover">
-                <div class="post-item post-item-no-gaps">
-                    <div class="post-item-info-wrapper">
-                        <div class="post-item-title post-item-title-small">
-                            Categories
-                        </div>
+        <div class="post">
+            
+            
+            
+                
+            
+
+            <div class="post-head-wrapper"
+                
+                    
+                    
+                    style="background-image: url('https://kvantos.github.io/static/images/stormy_sea.jpg')"
+                    
+                
+            >
+                <div class="post-title">
+                    Udev Device Mapping
+                    
+                    <div class="post-subtitle">
+                        Esmeralda
+                    </div>
+                    
+                    <div class="post-meta">
+                        
+                        <time itemprop="datePublished">
+                            2020-12-06 22:36
+                        </time>
+                        
+
+                        
+                            <i class="material-icons" style="">folder</i>
+                                <a href="/categories/linux">Linux</a>
+                                &nbsp;
+                        
+
+                        
+                            <i class="material-icons" style="">label</i>
+                            
+                                <a href="/tags/linux">linux</a>
+                                &nbsp;
+                            
+                                <a href="/tags/udev">udev</a>
+                                &nbsp;
+                            
+                                <a href="/tags/system">system</a>
+                                &nbsp;
+                            
+                        
+                        
                     </div>
                 </div>
             </div>
-        </a>
-        
-        
-                <a href="https://kvantos.github.io/categories/story/" class="a-block">
-                    <div class="post-item-wrapper">
-                        <div class="post-item post-item-no-gaps">
-                            <div class="post-item-info-wrapper"> 
-                                <div class="post-item-title">
-                                    Story
-                                </div>
-                            </div>
-                        </div>
-                    </div>
+            
+            <div class="post-body-wrapper">
+                
+                <div class="post-body" v-pre>
+                
+                    <h2 id="hdd">HDD</h2>
+<p>Конечно же это далеко не новость, но тем не менее. В общем возникло желание замапить свой жесткий диск который стоит в домашнем сервере. Так чтоб его можно было сколько угодно раз подключать отключать, а он в системе оставался под одним и тем же именем. Что для этого понадобится? А ничего, Linux, винт и текстовый редактор. В общем можно создать свой отдельный файл с правилом для udev, в который положим правила:</p>
+<p>[root@amigo rules.d]# cd /etc/udev/rules.d
+[root@amigo rules.d]# touch 30-local.rules</p>
+<p>и добавляем туда что-то типа:</p>
+<div class="highlight"><pre style="background-color:#eed;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-sh" data-lang="sh"><span style="color:#228b22">## Persistent name for removable USB hdd used for storage data</span>
+<span style="color:#00688b">BUS</span>==<span style="color:#cd5555">&#34;usb&#34;</span>, <span style="color:#00688b">KERNEL</span>==<span style="color:#cd5555">&#34;sd?1&#34;</span>, SYSFS{serial}==<span style="color:#cd5555">&#34;124689F86033&#34;</span>, <span style="color:#00688b">NAME</span>=<span style="color:#cd5555">&#34;%k&#34;</span>, <span style="color:#00688b">SYMLINK</span>+=<span style="color:#cd5555">&#34;usbhdd1&#34;</span>
+</code></pre></div><p>серийник можно узнать использовав команду:</p>
+<div class="highlight"><pre style="background-color:#eed;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-sh" data-lang="sh">[root@amigo rules.d]<span style="color:#228b22"># udevinfo -a -p /sys/block/sda | grep serial</span>
+    SYSFS{serial}==<span style="color:#cd5555">&#34;124689F86033&#34;</span>
+    SYSFS{serial}==<span style="color:#cd5555">&#34;0000:06:00.2&#34;</span>
+</code></pre></div><p>далее в /etc/fstab добавляем привычную строчку монтирования диска. Имя у него теперь будет /dev/usbhdd1</p>
+<p>/dev/usbhdd1 /var/media/    ext3    defaults,noatime,async  0 2</p>
+<h2 id="scanner">SCANNER</h2>
+<p>Если с винтом всё предельно ясно, то вот со сканером возник определённый ступор. Проблема со сканером была в том что доступ к нему мог иметь только root, меня это никак не устраивало, потому что сканировать я люблю из под своего юзера. И вот, чтоб каждый раз не ставить права на устройство руками, можно заюзать гибкое средство udev. На этот раз ничего создавать не пришлось, видимо когда поставился SANE, заодно и прописался файлик /etc/udev/rules.d/60-libsane.rules</p>
+<pre><code># Mustek BearPaw 2448TA Pro 
+SYSFS{idVendor}==&quot;055f&quot;, SYSFS{idProduct}==&quot;0409&quot;, SYMLINK+=&quot;scanner-%k&quot;
+</code></pre><p>В нём быстро был обнаружен мой сканер, и я тут же попытался добавить правила которые меня бы устроили GROUP:=&ldquo;scanner&rdquo;, MODE:=&ldquo;0660&rdquo;
+Но не тут то было! Правила автоматически не применялись. Сначала я долго не мог понять в чём подвох. Потом случайно обнаружил что, если убрать правило которое добавляет symlink, то всё хорошо. Ну, без symlink тоже всё прекрасно работает, не знаю в чем его назначение и почему так получается. В общем, правило стало выглядеть вот так:</p>
+<pre><code>SYSFS{idVendor}==&quot;055f&quot;, SYSFS{idProduct}==&quot;0409&quot;, GROUP:=&quot;scanner&quot;, MODE:=&quot;0660&quot;
+</code></pre><p>Добавил группу и включил в неё своего пользователя:</p>
+<div class="highlight"><pre style="background-color:#eed;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-sh" data-lang="sh">[root@amigo rules.d]$ groupadd -r scanner
+[root@amigo rules.d]$ usermod -G scanner USERNAME
+</code></pre></div><p>И всё заработало :)</p>
+
+                    
+                    <HR width="100%" id="EOF">
+		    <p style="color:#777;">Last modified on 2020-12-06</p>
+                    
+                </div>
+            </div>
+            
+            
+            <nav class="post-pagination">
+
+                
+                <a class="newer-posts" href="https://kvantos.github.io/posts/world-around-us/">
+			Next<br>World Around Us
                 </a>
-        
-                <a href="https://kvantos.github.io/categories/linux/" class="a-block">
-                    <div class="post-item-wrapper">
-                        <div class="post-item post-item-no-gaps">
-                            <div class="post-item-info-wrapper"> 
-                                <div class="post-item-title">
-                                    Linux
-                                </div>
-                            </div>
-                        </div>
-                    </div>
+                
+                
+                
+                <a class="older-posts">
+			Previous<br>No older posts.
                 </a>
-        
-    </div>
-</div>
+                
+            </nav>
+            <div class="post-comment-wrapper">
+                
+
+
+<div id="gitalk-container"></div>
+
+
+
+
 
 
             </div>
+        </div>
+    </div>
+</div>
 
-
-<div id="single-column-footer">
+            </div><div id="single-column-footer">
 Hugo Theme <a href="https://github.com/amazingrise/hugo-theme-diary">Diary</a> by <a href="https://amazingrise.net">Rise</a>
 <br>
 Ported from <a href="https://mak1t0.cc/" target="_blank" rel="noreferrer noopener">Makito</a>'s <a href="https://github.com/SumiMakito/hexo-theme-journal/" target="_blank" rel="noreferrer noopener">Journal.</a> <br>

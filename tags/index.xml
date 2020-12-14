@@ -71,5 +71,32 @@
       <description></description>
     </item>
     
+    <item>
+      <title>linux</title>
+      <link>https://kvantos.github.io/tags/linux/</link>
+      <pubDate>Sun, 06 Dec 2020 22:36:36 +0200</pubDate>
+      
+      <guid>https://kvantos.github.io/tags/linux/</guid>
+      <description></description>
+    </item>
+    
+    <item>
+      <title>system</title>
+      <link>https://kvantos.github.io/tags/system/</link>
+      <pubDate>Sun, 06 Dec 2020 22:36:36 +0200</pubDate>
+      
+      <guid>https://kvantos.github.io/tags/system/</guid>
+      <description></description>
+    </item>
+    
+    <item>
+      <title>udev</title>
+      <link>https://kvantos.github.io/tags/udev/</link>
+      <pubDate>Sun, 06 Dec 2020 22:36:36 +0200</pubDate>
+      
+      <guid>https://kvantos.github.io/tags/udev/</guid>
+      <description></description>
+    </item>
+    
   </channel>
 </rss>

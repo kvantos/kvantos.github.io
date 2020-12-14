@@ -23,5 +23,43 @@
         </item>
     
     
+    
+        <item>
+        <title>Udev Device Mapping for Daily Tasks</title>
+        <link>https://kvantos.github.io/posts/udev-device-mapping/</link>
+        <pubDate>Sun, 06 Dec 2020 22:36:36 +0200</pubDate>
+        
+        <guid>https://kvantos.github.io/posts/udev-device-mapping/</guid>
+        <description>Sergey Kviato Blog https://kvantos.github.io/posts/udev-device-mapping/ -&lt;p&gt;UDEV is a userspace system that allows you to identify devices based on their properties, and register userspace handlers.&lt;/p&gt;
+&lt;h2 id=&#34;set-persistent-name-for-device&#34;&gt;Set persistent name for device.&lt;/h2&gt;
+&lt;p&gt;The task is to make persistent drive name. To do this, you need to create a new UDEV rule. It is better to create your own separate config for custom rules:&lt;/p&gt;
+&lt;pre&gt;&lt;code&gt;[root@amigo rules.d]# cd /etc/udev/rules.d
+[root@amigo rules.d]# touch 30-local.rules
+&lt;/code&gt;&lt;/pre&gt;&lt;p&gt;The rule itself may look like this:&lt;/p&gt;
+&lt;pre&gt;&lt;code&gt;## Persistent name for removable USB hdd used for storage data
+SUBSYSTEMS==&amp;quot;usb&amp;quot;, SUBSYSTEM==&amp;quot;block&amp;quot;, KERNEL==&amp;quot;sd?1&amp;quot;, ATTRS{serial}==&amp;quot;124689F86033&amp;quot;, NAME=&amp;quot;%k&amp;quot;, SYMLINK+=&amp;quot;usbhdd1&amp;quot;
+&lt;/code&gt;&lt;/pre&gt;&lt;p&gt;UDEV allows you to choose the required device in a rather delicate way. You can get all parameters of UDEV rules from the documentation. Now we will focus on the &lt;code&gt;ATTRS {serial}&lt;/code&gt; parameter, which allows us to isolate the required drive on the USB bus by the serial number &lt;code&gt;SUBSYSTEMS ==&amp;quot; usb &amp;quot;, SUBSYSTEM ==&amp;quot; block &amp;quot;&lt;/code&gt;. The permanent name is set with the command &lt;code&gt;SYMLINK + =&amp;quot; usbhdd1 &amp;quot;&lt;/code&gt;. To find the serial number, execute the following command, substituting the drive path with your:&lt;/p&gt;
+&lt;div class=&#34;highlight&#34;&gt;&lt;pre style=&#34;background-color:#eed;-moz-tab-size:4;-o-tab-size:4;tab-size:4&#34;&gt;&lt;code class=&#34;language-sh&#34; data-lang=&#34;sh&#34;&gt;[root@amigo rules.d]&lt;span style=&#34;color:#228b22&#34;&gt;# udevadm info -a -p /sys/block/sda | grep serial&lt;/span&gt;
+    ATTRS{serial}==&lt;span style=&#34;color:#cd5555&#34;&gt;&amp;#34;124689F86033&amp;#34;&lt;/span&gt;
+    ATTRS{serial}==&lt;span style=&#34;color:#cd5555&#34;&gt;&amp;#34;0000:06:00.2&amp;#34;&lt;/span&gt;
+&lt;/code&gt;&lt;/pre&gt;&lt;/div&gt;&lt;h2 id=&#34;automatically-set-access-for-device&#34;&gt;Automatically set access for device.&lt;/h2&gt;
+&lt;p&gt;By default, only the &lt;strong&gt;root&lt;/strong&gt; user has access to the scanner. For simple users to be able to use the scanner, you need to set access rights. You can set access rights to the device each time the scanner is connected, or you can use UDEV to assign the necessary rights automatically. On my system, after installing SANE, also configuration file &lt;code&gt;/etc/udev/rules.d/60-libsane.rules&lt;/code&gt; installed.&lt;/p&gt;
+&lt;p&gt;I quickly found my scanner:&lt;/p&gt;
+&lt;pre&gt;&lt;code&gt;# Mustek BearPaw 2448TA Pro 
+SYSFS{idVendor}==&amp;quot;055f&amp;quot;, SYSFS{idProduct}==&amp;quot;0409&amp;quot;, SYMLINK+=&amp;quot;scanner-%k&amp;quot;
+&lt;/code&gt;&lt;/pre&gt;&lt;p&gt;Instead of granting rights to an individual user, it is better to give access to a group. The modified rule now looks like this:&lt;/p&gt;
+&lt;pre&gt;&lt;code&gt;SYSFS{idVendor}==&amp;quot;055f&amp;quot;, SYSFS{idProduct}==&amp;quot;0409&amp;quot;, GROUP:=&amp;quot;scanner&amp;quot;, MODE:=&amp;quot;0660&amp;quot;
+&lt;/code&gt;&lt;/pre&gt;&lt;p&gt;There was no &lt;code&gt;scanner&lt;/code&gt; group on my system, so I added a group and included my user in it:&lt;/p&gt;
+&lt;div class=&#34;highlight&#34;&gt;&lt;pre style=&#34;background-color:#eed;-moz-tab-size:4;-o-tab-size:4;tab-size:4&#34;&gt;&lt;code class=&#34;language-sh&#34; data-lang=&#34;sh&#34;&gt;[root@amigo rules.d]$ groupadd -r scanner
+[root@amigo rules.d]$ usermod -G scanner USERNAME
+&lt;/code&gt;&lt;/pre&gt;&lt;/div&gt;&lt;p&gt;This concludes the small journey into the world of UDEV automation. For those who interested in knowing more about UDEV, here are the links:&lt;/p&gt;
+&lt;ul&gt;
+&lt;li&gt;&lt;a href=&#34;https://wiki.archlinux.org/index.php/Udev&#34;&gt;https://wiki.archlinux.org/index.php/Udev&lt;/a&gt;&lt;/li&gt;
+&lt;li&gt;&lt;a href=&#34;https://wiki.debian.org/udev&#34;&gt;https://wiki.debian.org/udev&lt;/a&gt;&lt;/li&gt;
+&lt;/ul&gt;
+- https://kvantos.github.io/posts/udev-device-mapping/ - 2020</description>
+        </item>
+    
+    
   </channel>
 </rss> 

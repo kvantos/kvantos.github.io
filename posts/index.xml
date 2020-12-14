@@ -17,5 +17,16 @@
       <description>We live in world, but what does world means to us? The surrounding reality? These are value judgments only. We live on planet Earth and this is our world. Humanity has expanded its habitat, agriculture, electricity transport are the achievements of modern mankind. A industrialized society can manage living conditions. But have we solved all problems? There is a world around us and there is garbage, destruction of natural resources. People began to think they on their own, the crown of evolution.</description>
     </item>
     
+    <item>
+      <title>Udev Device Mapping for Daily Tasks</title>
+      <link>https://kvantos.github.io/posts/udev-device-mapping/</link>
+      <pubDate>Sun, 06 Dec 2020 22:36:36 +0200</pubDate>
+      
+      <guid>https://kvantos.github.io/posts/udev-device-mapping/</guid>
+      <description>UDEV is a userspace system that allows you to identify devices based on their properties, and register userspace handlers.
+Set persistent name for device. The task is to make persistent drive name. To do this, you need to create a new UDEV rule. It is better to create your own separate config for custom rules:
+[root@amigo rules.d]# cd /etc/udev/rules.d [root@amigo rules.d]# touch 30-local.rules The rule itself may look like this:</description>
+    </item>
+    
   </channel>
 </rss>

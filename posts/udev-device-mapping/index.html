@@ -1,6 +1,6 @@
 <!DOCTYPE html>
 <html><head>
-<title>Udev Device Mapping</title>
+<title>Udev Device Mapping for Daily Tasks</title>
 
 
 
@@ -10,14 +10,14 @@
 <meta name="google-site-verification" content="">
 <meta content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=0" name="viewport">
 <meta content="telephone=no" name="format-detection">
-<meta name="description" content="Esmeralda">
+<meta name="description" content="Was it so that a device connected via USB appears in the system with a different name from the desired one? Or with different access rights than desired? For instance, USB drive should always have specific name, for service correct operation. Or network cards must have specific names, for routing and firewall correct operation. For such questions, and even more, Linux has a standard tool in its arsenal -- UDEV.">
 <meta name="renderer" content="webkit">
 <meta name="theme-color" content="#ffffff">
 
 
 
-<meta property="og:title" content="Udev Device Mapping" />
-<meta property="og:description" content="Esmeralda" />
+<meta property="og:title" content="Udev Device Mapping for Daily Tasks" />
+<meta property="og:description" content="Was it so that a device connected via USB appears in the system with a different name from the desired one? Or with different access rights than desired? For instance, USB drive should always have specific name, for service correct operation. Or network cards must have specific names, for routing and firewall correct operation. For such questions, and even more, Linux has a standard tool in its arsenal -- UDEV." />
 <meta property="og:type" content="article" />
 <meta property="og:url" content="https://kvantos.github.io/posts/udev-device-mapping/" />
 <meta property="article:published_time" content="2020-12-06T22:36:36+02:00" />
@@ -28,8 +28,8 @@
 
 
 <meta name="twitter:card" content="summary"/>
-<meta name="twitter:title" content="Udev Device Mapping"/>
-<meta name="twitter:description" content="Esmeralda"/>
+<meta name="twitter:title" content="Udev Device Mapping for Daily Tasks"/>
+<meta name="twitter:description" content="Was it so that a device connected via USB appears in the system with a different name from the desired one? Or with different access rights than desired? For instance, USB drive should always have specific name, for service correct operation. Or network cards must have specific names, for routing and firewall correct operation. For such questions, and even more, Linux has a standard tool in its arsenal -- UDEV."/>
 
 
 
@@ -203,8 +203,8 @@ Ported from <a href="https://mak1t0.cc/" target="_blank" rel="noreferrer noopene
 						
 						
 							<li>
-								<a href="#hdd" onclick="onNavClick(`#hdd-nav`)" id="hdd-nav">
-									HDD
+								<a href="#set-persistent-name-for-device" onclick="onNavClick(`#set-persistent-name-for-device-nav`)" id="set-persistent-name-for-device-nav">
+									Set persistent name for device.
 								</a>
 							</li>
 						
@@ -221,8 +221,8 @@ Ported from <a href="https://mak1t0.cc/" target="_blank" rel="noreferrer noopene
 						
 						
 							<li>
-								<a href="#scanner" onclick="onNavClick(`#scanner-nav`)" id="scanner-nav">
-									SCANNER
+								<a href="#automatically-set-access-for-device" onclick="onNavClick(`#automatically-set-access-for-device-nav`)" id="automatically-set-access-for-device-nav">
+									Automatically set access for device.
 								</a>
 							</li>
 						
@@ -330,8 +330,8 @@ Ported from <a href="https://mak1t0.cc/" target="_blank" rel="noreferrer noopene
 						
 						
 							<li>
-								<a href="#hdd" onclick="onNavClick(`#hdd-nav`)" id="hdd-nav">
-									HDD
+								<a href="#set-persistent-name-for-device" onclick="onNavClick(`#set-persistent-name-for-device-nav`)" id="set-persistent-name-for-device-nav">
+									Set persistent name for device.
 								</a>
 							</li>
 						
@@ -348,8 +348,8 @@ Ported from <a href="https://mak1t0.cc/" target="_blank" rel="noreferrer noopene
 						
 						
 							<li>
-								<a href="#scanner" onclick="onNavClick(`#scanner-nav`)" id="scanner-nav">
-									SCANNER
+								<a href="#automatically-set-access-for-device" onclick="onNavClick(`#automatically-set-access-for-device-nav`)" id="automatically-set-access-for-device-nav">
+									Automatically set access for device.
 								</a>
 							</li>
 						
@@ -416,15 +416,15 @@ Ported from <a href="https://mak1t0.cc/" target="_blank" rel="noreferrer noopene
                 
                     
                     
-                    style="background-image: url('https://kvantos.github.io/static/images/stormy_sea.jpg')"
+                    style="background-image: url('https://kvantos.github.io/img/good_bytes.jpg')"
                     
                 
             >
                 <div class="post-title">
-                    Udev Device Mapping
+                    Udev Device Mapping for Daily Tasks
                     
                     <div class="post-subtitle">
-                        Esmeralda
+                        Was it so that a device connected via USB appears in the system with a different name from the desired one? Or with different access rights than desired? For instance, USB drive should always have specific name, for service correct operation. Or network cards must have specific names, for routing and firewall correct operation. For such questions, and even more, Linux has a standard tool in its arsenal -- UDEV.
                     </div>
                     
                     <div class="post-meta">
@@ -462,30 +462,33 @@ Ported from <a href="https://mak1t0.cc/" target="_blank" rel="noreferrer noopene
                 
                 <div class="post-body" v-pre>
                 
-                    <h2 id="hdd">HDD</h2>
-<p>Конечно же это далеко не новость, но тем не менее. В общем возникло желание замапить свой жесткий диск который стоит в домашнем сервере. Так чтоб его можно было сколько угодно раз подключать отключать, а он в системе оставался под одним и тем же именем. Что для этого понадобится? А ничего, Linux, винт и текстовый редактор. В общем можно создать свой отдельный файл с правилом для udev, в который положим правила:</p>
-<p>[root@amigo rules.d]# cd /etc/udev/rules.d
-[root@amigo rules.d]# touch 30-local.rules</p>
-<p>и добавляем туда что-то типа:</p>
-<div class="highlight"><pre style="background-color:#eed;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-sh" data-lang="sh"><span style="color:#228b22">## Persistent name for removable USB hdd used for storage data</span>
-<span style="color:#00688b">BUS</span>==<span style="color:#cd5555">&#34;usb&#34;</span>, <span style="color:#00688b">KERNEL</span>==<span style="color:#cd5555">&#34;sd?1&#34;</span>, SYSFS{serial}==<span style="color:#cd5555">&#34;124689F86033&#34;</span>, <span style="color:#00688b">NAME</span>=<span style="color:#cd5555">&#34;%k&#34;</span>, <span style="color:#00688b">SYMLINK</span>+=<span style="color:#cd5555">&#34;usbhdd1&#34;</span>
-</code></pre></div><p>серийник можно узнать использовав команду:</p>
-<div class="highlight"><pre style="background-color:#eed;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-sh" data-lang="sh">[root@amigo rules.d]<span style="color:#228b22"># udevinfo -a -p /sys/block/sda | grep serial</span>
-    SYSFS{serial}==<span style="color:#cd5555">&#34;124689F86033&#34;</span>
-    SYSFS{serial}==<span style="color:#cd5555">&#34;0000:06:00.2&#34;</span>
-</code></pre></div><p>далее в /etc/fstab добавляем привычную строчку монтирования диска. Имя у него теперь будет /dev/usbhdd1</p>
-<p>/dev/usbhdd1 /var/media/    ext3    defaults,noatime,async  0 2</p>
-<h2 id="scanner">SCANNER</h2>
-<p>Если с винтом всё предельно ясно, то вот со сканером возник определённый ступор. Проблема со сканером была в том что доступ к нему мог иметь только root, меня это никак не устраивало, потому что сканировать я люблю из под своего юзера. И вот, чтоб каждый раз не ставить права на устройство руками, можно заюзать гибкое средство udev. На этот раз ничего создавать не пришлось, видимо когда поставился SANE, заодно и прописался файлик /etc/udev/rules.d/60-libsane.rules</p>
+                    <p>UDEV is a userspace system that allows you to identify devices based on their properties, and register userspace handlers.</p>
+<h2 id="set-persistent-name-for-device">Set persistent name for device.</h2>
+<p>The task is to make persistent drive name. To do this, you need to create a new UDEV rule. It is better to create your own separate config for custom rules:</p>
+<pre><code>[root@amigo rules.d]# cd /etc/udev/rules.d
+[root@amigo rules.d]# touch 30-local.rules
+</code></pre><p>The rule itself may look like this:</p>
+<pre><code>## Persistent name for removable USB hdd used for storage data
+SUBSYSTEMS==&quot;usb&quot;, SUBSYSTEM==&quot;block&quot;, KERNEL==&quot;sd?1&quot;, ATTRS{serial}==&quot;124689F86033&quot;, NAME=&quot;%k&quot;, SYMLINK+=&quot;usbhdd1&quot;
+</code></pre><p>UDEV allows you to choose the required device in a rather delicate way. You can get all parameters of UDEV rules from the documentation. Now we will focus on the <code>ATTRS {serial}</code> parameter, which allows us to isolate the required drive on the USB bus by the serial number <code>SUBSYSTEMS ==&quot; usb &quot;, SUBSYSTEM ==&quot; block &quot;</code>. The permanent name is set with the command <code>SYMLINK + =&quot; usbhdd1 &quot;</code>. To find the serial number, execute the following command, substituting the drive path with your:</p>
+<div class="highlight"><pre style="background-color:#eed;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-sh" data-lang="sh">[root@amigo rules.d]<span style="color:#228b22"># udevadm info -a -p /sys/block/sda | grep serial</span>
+    ATTRS{serial}==<span style="color:#cd5555">&#34;124689F86033&#34;</span>
+    ATTRS{serial}==<span style="color:#cd5555">&#34;0000:06:00.2&#34;</span>
+</code></pre></div><h2 id="automatically-set-access-for-device">Automatically set access for device.</h2>
+<p>By default, only the <strong>root</strong> user has access to the scanner. For simple users to be able to use the scanner, you need to set access rights. You can set access rights to the device each time the scanner is connected, or you can use UDEV to assign the necessary rights automatically. On my system, after installing SANE, also configuration file <code>/etc/udev/rules.d/60-libsane.rules</code> installed.</p>
+<p>I quickly found my scanner:</p>
 <pre><code># Mustek BearPaw 2448TA Pro 
 SYSFS{idVendor}==&quot;055f&quot;, SYSFS{idProduct}==&quot;0409&quot;, SYMLINK+=&quot;scanner-%k&quot;
-</code></pre><p>В нём быстро был обнаружен мой сканер, и я тут же попытался добавить правила которые меня бы устроили GROUP:=&ldquo;scanner&rdquo;, MODE:=&ldquo;0660&rdquo;
-Но не тут то было! Правила автоматически не применялись. Сначала я долго не мог понять в чём подвох. Потом случайно обнаружил что, если убрать правило которое добавляет symlink, то всё хорошо. Ну, без symlink тоже всё прекрасно работает, не знаю в чем его назначение и почему так получается. В общем, правило стало выглядеть вот так:</p>
+</code></pre><p>Instead of granting rights to an individual user, it is better to give access to a group. The modified rule now looks like this:</p>
 <pre><code>SYSFS{idVendor}==&quot;055f&quot;, SYSFS{idProduct}==&quot;0409&quot;, GROUP:=&quot;scanner&quot;, MODE:=&quot;0660&quot;
-</code></pre><p>Добавил группу и включил в неё своего пользователя:</p>
+</code></pre><p>There was no <code>scanner</code> group on my system, so I added a group and included my user in it:</p>
 <div class="highlight"><pre style="background-color:#eed;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-sh" data-lang="sh">[root@amigo rules.d]$ groupadd -r scanner
 [root@amigo rules.d]$ usermod -G scanner USERNAME
-</code></pre></div><p>И всё заработало :)</p>
+</code></pre></div><p>This concludes the small journey into the world of UDEV automation. For those who interested in knowing more about UDEV, here are the links:</p>
+<ul>
+<li><a href="https://wiki.archlinux.org/index.php/Udev">https://wiki.archlinux.org/index.php/Udev</a></li>
+<li><a href="https://wiki.debian.org/udev">https://wiki.debian.org/udev</a></li>
+</ul>
 
                     
                     <HR width="100%" id="EOF">

@@ -6,7 +6,7 @@
     <description>Recent content in udev on Sergey Kviato Blog</description>
     <generator>Hugo -- gohugo.io</generator>
     <language>en-us</language>
-    <copyright>2020</copyright>
+    <copyright>2020--2021</copyright>
     <lastBuildDate>Sun, 06 Dec 2020 22:36:36 +0200</lastBuildDate><atom:link href="https://kvantos.github.io/tags/udev/index.xml" rel="self" type="application/rss+xml" />
     <item>
       <title>Udev Device Mapping for Daily Tasks</title>
@@ -14,9 +14,8 @@
       <pubDate>Sun, 06 Dec 2020 22:36:36 +0200</pubDate>
       
       <guid>https://kvantos.github.io/posts/udev-device-mapping/</guid>
-      <description>UDEV is a userspace system that allows you to identify devices based on their properties, and register userspace handlers.
-Set persistent name for device. The task is to make persistent drive name. To do this, you need to create a new UDEV rule. It is better to create your own separate config for custom rules:
-[root@amigo rules.d]# cd /etc/udev/rules.d [root@amigo rules.d]# touch 30-local.rules The rule itself may look like this:</description>
+      <description>Does USB device should always have specific access rights? Or network cards must have specific names? For such questions, and even more, Linux has a standard tool in its arsenal &amp;ndash; UDEV. UDEV is a userspace system that allows you to identify devices based on their properties, and register userspace handlers.
+Set persistent name for device. The task is to make persistent drive name. To do this, you need to create a new UDEV rule.</description>
     </item>
     
   </channel>

@@ -5,10 +5,31 @@
     <description>Recent content on Sergey Kviato Blog</description>
     <generator>Hugo -- gohugo.io</generator>
     <language>en-us</language>
-    <copyright>2020</copyright>
+    <copyright>2020--2021</copyright>
     <lastBuildDate>Mon, 07 Dec 2020 01:05:47 +0200</lastBuildDate>
     
         <atom:link href="https://kvantos.github.io/index.xml" rel="self" type="application/rss+xml" />
+    
+    
+    
+        <item>
+        <title>About the Author</title>
+        <link>https://kvantos.github.io/aboutme/</link>
+        <pubDate>Wed, 30 Dec 2020 19:57:05 +0200</pubDate>
+        
+        <guid>https://kvantos.github.io/aboutme/</guid>
+        <description>Sergey Kviato Blog https://kvantos.github.io/aboutme/ -&lt;p&gt;Python Programmer.&lt;/p&gt;
+&lt;p&gt;Data Support Engineer.&lt;/p&gt;
+&lt;p&gt;Geek.&lt;/p&gt;
+&lt;p&gt;Believe in Opensource.&lt;/p&gt;
+&lt;p&gt;Share my findings about Python, Linux, Arduino, Micro-services, Cloud and Distributed Computing.&lt;/p&gt;
+&lt;h3 id=&#34;follow-me-on-social-media-sites&#34;&gt;Follow me on social media sites:&lt;/h3&gt;
+&lt;ul&gt;
+&lt;li&gt;&lt;a href=&#34;https://www.linkedin.com/in/sergio-kviato&#34;&gt;LinkedIn&lt;/a&gt;&lt;/li&gt;
+&lt;li&gt;&lt;a href=&#34;https://github.com/kvantos&#34;&gt;GitHub&lt;/a&gt;&lt;/li&gt;
+&lt;/ul&gt;
+- https://kvantos.github.io/aboutme/ - 2020--2021</description>
+        </item>
     
     
     
@@ -19,7 +40,7 @@
         
         <guid>https://kvantos.github.io/posts/world-around-us/</guid>
         <description>Sergey Kviato Blog https://kvantos.github.io/posts/world-around-us/ -&lt;p&gt;We live in world, but what does world means to us? The surrounding reality? These are value judgments only. We live on planet Earth and this is our world. Humanity has expanded its habitat, agriculture, electricity transport are the achievements of modern mankind. A industrialized society can manage living conditions. But have we solved all problems? There is a world around us and there is garbage, destruction of natural resources. People began to think they on their own, the crown of evolution. But how many people can survive in the forest without technology? The truth is that we are part of the system, ecosystem, part of nature. And we are completely dependent on nature well-being.&lt;/p&gt;
-- https://kvantos.github.io/posts/world-around-us/ - 2020</description>
+- https://kvantos.github.io/posts/world-around-us/ - 2020--2021</description>
         </item>
     
     
@@ -30,7 +51,7 @@
         <pubDate>Sun, 06 Dec 2020 22:36:36 +0200</pubDate>
         
         <guid>https://kvantos.github.io/posts/udev-device-mapping/</guid>
-        <description>Sergey Kviato Blog https://kvantos.github.io/posts/udev-device-mapping/ -&lt;p&gt;UDEV is a userspace system that allows you to identify devices based on their properties, and register userspace handlers.&lt;/p&gt;
+        <description>Sergey Kviato Blog https://kvantos.github.io/posts/udev-device-mapping/ -&lt;p&gt;Does USB device should always have specific access rights? Or network cards must have specific names? For such questions, and even more, Linux has a standard tool in its arsenal &amp;ndash; UDEV. UDEV is a userspace system that allows you to identify devices based on their properties, and register userspace handlers.&lt;/p&gt;
 &lt;h2 id=&#34;set-persistent-name-for-device&#34;&gt;Set persistent name for device.&lt;/h2&gt;
 &lt;p&gt;The task is to make persistent drive name. To do this, you need to create a new UDEV rule. It is better to create your own separate config for custom rules:&lt;/p&gt;
 &lt;pre&gt;&lt;code&gt;[root@amigo rules.d]# cd /etc/udev/rules.d
@@ -57,7 +78,7 @@ SYSFS{idVendor}==&amp;quot;055f&amp;quot;, SYSFS{idProduct}==&amp;quot;0409&amp;
 &lt;li&gt;&lt;a href=&#34;https://wiki.archlinux.org/index.php/Udev&#34;&gt;https://wiki.archlinux.org/index.php/Udev&lt;/a&gt;&lt;/li&gt;
 &lt;li&gt;&lt;a href=&#34;https://wiki.debian.org/udev&#34;&gt;https://wiki.debian.org/udev&lt;/a&gt;&lt;/li&gt;
 &lt;/ul&gt;
-- https://kvantos.github.io/posts/udev-device-mapping/ - 2020</description>
+- https://kvantos.github.io/posts/udev-device-mapping/ - 2020--2021</description>
         </item>
     
     

@@ -13,27 +13,6 @@
     
     
         <item>
-        <title>About the Author</title>
-        <link>https://kvantos.github.io/aboutme/</link>
-        <pubDate>Wed, 30 Dec 2020 19:57:05 +0200</pubDate>
-        
-        <guid>https://kvantos.github.io/aboutme/</guid>
-        <description>Sergey Kviato Blog https://kvantos.github.io/aboutme/ -&lt;p&gt;Python Programmer.&lt;/p&gt;
-&lt;p&gt;Data Support Engineer.&lt;/p&gt;
-&lt;p&gt;Geek.&lt;/p&gt;
-&lt;p&gt;Believe in Opensource.&lt;/p&gt;
-&lt;p&gt;Share my findings about Python, Linux, Arduino, Micro-services, Cloud and Distributed Computing.&lt;/p&gt;
-&lt;h3 id=&#34;follow-me-on-social-media-sites&#34;&gt;Follow me on social media sites:&lt;/h3&gt;
-&lt;ul&gt;
-&lt;li&gt;&lt;a href=&#34;https://www.linkedin.com/in/sergio-kviato&#34;&gt;LinkedIn&lt;/a&gt;&lt;/li&gt;
-&lt;li&gt;&lt;a href=&#34;https://github.com/kvantos&#34;&gt;GitHub&lt;/a&gt;&lt;/li&gt;
-&lt;/ul&gt;
-- https://kvantos.github.io/aboutme/ - 2020--2021</description>
-        </item>
-    
-    
-    
-        <item>
         <title>World Around Us</title>
         <link>https://kvantos.github.io/posts/world-around-us/</link>
         <pubDate>Mon, 07 Dec 2020 01:05:47 +0200</pubDate>
@@ -80,6 +59,8 @@ SYSFS{idVendor}==&amp;quot;055f&amp;quot;, SYSFS{idProduct}==&amp;quot;0409&amp;
 &lt;/ul&gt;
 - https://kvantos.github.io/posts/udev-device-mapping/ - 2020--2021</description>
         </item>
+    
+    
     
     
   </channel>

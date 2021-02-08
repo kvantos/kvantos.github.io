@@ -3,11 +3,6 @@
   xmlns:xhtml="http://www.w3.org/1999/xhtml">
   
   <url>
-    <loc>https://kvantos.github.io/aboutme/</loc>
-    <lastmod>2020-12-30T19:57:05+02:00</lastmod>
-  </url>
-  
-  <url>
     <loc>https://kvantos.github.io/categories/</loc>
     <lastmod>2020-12-07T01:05:47+02:00</lastmod>
   </url>
@@ -95,6 +90,10 @@
   <url>
     <loc>https://kvantos.github.io/posts/udev-device-mapping/</loc>
     <lastmod>2020-12-06T22:36:36+02:00</lastmod>
+  </url>
+  
+  <url>
+    <loc>https://kvantos.github.io/aboutme/</loc>
   </url>
   
 </urlset>

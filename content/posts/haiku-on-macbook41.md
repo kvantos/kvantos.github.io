@@ -3,6 +3,7 @@ title: "Lock, Stock and Two Tiled Fences: Haiku on a MacBook4,1"
 date: 2026-10-15T22:00:00+02:00
 description: "What sliced the intel_extreme display on a MacBook4,1 (GMA X3100), and the patches that fix it."
 draft: false
+featured_image: "/img/tori_s.jpg"
 tags: [haiku, intel_extreme, gpu, efi, macbook]
 categories: Haiku
 ---

@@ -1,0 +1,60 @@
+baseURL = "https://kvantos.github.io/"
+DefaultContentLanguage = "en" # Theme's display language, supports: en, fr, zh, zh-hant
+locale = "en-us"
+title = "Sergey Kviato Blog"
+copyright = "2020--2026"
+theme = "diary"
+publishdir = "public"
+
+[markup]
+  [markup.highlight]
+    codeFences = true
+    guessSyntax = false
+    hl_Lines = ""
+    lineNoStart = 1
+    lineNos = false
+    lineNumbersInTable = true
+    noClasses = true
+    style = "perldoc"
+    tabWidth = 4
+
+[params]
+subtitle = "Let’s see the shocking truth of my journey into the world of technology."
+enableGitalk = false
+
+# Twitter Card and Open Graph settings
+enableOpenGraph = true
+enableTwitterCards = true
+title = "Sergey Kviato Blog" # will set 'og:site_name'
+description = "Let’s see the shocking truth of my journey into the world of technology."  # will set 'og:description'
+
+[params.gitalk]
+  owner = "kvantos"
+  repo = "kvantos.github.io"
+  client_id = "88afe0ea00259e8ec100"
+  client_secret = "d8be18b804df35493db606de4f58fbb6deefb293"
+[taxonomies]
+   tag = "tags"
+   category = "categories"
+
+[[menu.main]]
+url = "/categories"
+name = "Categories"
+weight = 2
+[[menu.main]]
+url = "/tags"
+name = "Tags"
+weight = 3
+[[menu.main]]
+url = "/posts"
+name = "Articles"
+weight = 1
+[[menu.main]]
+url = "/index.xml"
+name = "RSS Feed"
+weight = 4
+[[menu.main]]
+url = "/aboutme"
+name = "About"
+weight = 5
+

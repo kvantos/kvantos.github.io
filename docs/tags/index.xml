@@ -2,7 +2,7 @@
 <rss version="2.0" xmlns:atom="http://www.w3.org/2005/Atom">
 	<channel>
 		<title>Tags on Sergey Kviato Blog</title>
-		<link>https://kvantos.github.io/tags/</link>
+		<link>http://localhost:1313/tags/</link>
 		<description>Recent content in Tags on Sergey Kviato Blog</description>
 		<generator>Hugo</generator>
 		<language>en-us</language>
@@ -12,77 +12,112 @@
 			<copyright>2020--2026</copyright>
 		
 		
-			<lastBuildDate>Mon, 07 Dec 2020 01:05:47 +0200</lastBuildDate>
+			<lastBuildDate>Thu, 15 Oct 2026 22:00:00 +0200</lastBuildDate>
 		
-			<atom:link href="https://kvantos.github.io/tags/index.xml" rel="self" type="application/rss+xml" />
+			<atom:link href="http://localhost:1313/tags/index.xml" rel="self" type="application/rss+xml" />
+			<item>
+				<title>Efi</title>
+				<link>http://localhost:1313/tags/efi/</link>
+				<pubDate>Thu, 15 Oct 2026 22:00:00 +0200</pubDate>
+				<guid>http://localhost:1313/tags/efi/</guid>
+				<description></description>
+			</item>
+			<item>
+				<title>Gpu</title>
+				<link>http://localhost:1313/tags/gpu/</link>
+				<pubDate>Thu, 15 Oct 2026 22:00:00 +0200</pubDate>
+				<guid>http://localhost:1313/tags/gpu/</guid>
+				<description></description>
+			</item>
+			<item>
+				<title>Haiku</title>
+				<link>http://localhost:1313/tags/haiku/</link>
+				<pubDate>Thu, 15 Oct 2026 22:00:00 +0200</pubDate>
+				<guid>http://localhost:1313/tags/haiku/</guid>
+				<description></description>
+			</item>
+			<item>
+				<title>Intel_extreme</title>
+				<link>http://localhost:1313/tags/intel_extreme/</link>
+				<pubDate>Thu, 15 Oct 2026 22:00:00 +0200</pubDate>
+				<guid>http://localhost:1313/tags/intel_extreme/</guid>
+				<description></description>
+			</item>
+			<item>
+				<title>Macbook</title>
+				<link>http://localhost:1313/tags/macbook/</link>
+				<pubDate>Thu, 15 Oct 2026 22:00:00 +0200</pubDate>
+				<guid>http://localhost:1313/tags/macbook/</guid>
+				<description></description>
+			</item>
 			<item>
 				<title>Ecology</title>
-				<link>https://kvantos.github.io/tags/ecology/</link>
+				<link>http://localhost:1313/tags/ecology/</link>
 				<pubDate>Mon, 07 Dec 2020 01:05:47 +0200</pubDate>
-				<guid>https://kvantos.github.io/tags/ecology/</guid>
+				<guid>http://localhost:1313/tags/ecology/</guid>
 				<description></description>
 			</item>
 			<item>
 				<title>Humanbeing</title>
-				<link>https://kvantos.github.io/tags/humanbeing/</link>
+				<link>http://localhost:1313/tags/humanbeing/</link>
 				<pubDate>Mon, 07 Dec 2020 01:05:47 +0200</pubDate>
-				<guid>https://kvantos.github.io/tags/humanbeing/</guid>
+				<guid>http://localhost:1313/tags/humanbeing/</guid>
 				<description></description>
 			</item>
 			<item>
 				<title>Nature</title>
-				<link>https://kvantos.github.io/tags/nature/</link>
+				<link>http://localhost:1313/tags/nature/</link>
 				<pubDate>Mon, 07 Dec 2020 01:05:47 +0200</pubDate>
-				<guid>https://kvantos.github.io/tags/nature/</guid>
+				<guid>http://localhost:1313/tags/nature/</guid>
 				<description></description>
 			</item>
 			<item>
 				<title>Sea</title>
-				<link>https://kvantos.github.io/tags/sea/</link>
+				<link>http://localhost:1313/tags/sea/</link>
 				<pubDate>Mon, 07 Dec 2020 01:05:47 +0200</pubDate>
-				<guid>https://kvantos.github.io/tags/sea/</guid>
+				<guid>http://localhost:1313/tags/sea/</guid>
 				<description></description>
 			</item>
 			<item>
 				<title>Story</title>
-				<link>https://kvantos.github.io/tags/story/</link>
+				<link>http://localhost:1313/tags/story/</link>
 				<pubDate>Mon, 07 Dec 2020 01:05:47 +0200</pubDate>
-				<guid>https://kvantos.github.io/tags/story/</guid>
+				<guid>http://localhost:1313/tags/story/</guid>
 				<description></description>
 			</item>
 			<item>
 				<title>Technology</title>
-				<link>https://kvantos.github.io/tags/technology/</link>
+				<link>http://localhost:1313/tags/technology/</link>
 				<pubDate>Mon, 07 Dec 2020 01:05:47 +0200</pubDate>
-				<guid>https://kvantos.github.io/tags/technology/</guid>
+				<guid>http://localhost:1313/tags/technology/</guid>
 				<description></description>
 			</item>
 			<item>
 				<title>World</title>
-				<link>https://kvantos.github.io/tags/world/</link>
+				<link>http://localhost:1313/tags/world/</link>
 				<pubDate>Mon, 07 Dec 2020 01:05:47 +0200</pubDate>
-				<guid>https://kvantos.github.io/tags/world/</guid>
+				<guid>http://localhost:1313/tags/world/</guid>
 				<description></description>
 			</item>
 			<item>
 				<title>Linux</title>
-				<link>https://kvantos.github.io/tags/linux/</link>
+				<link>http://localhost:1313/tags/linux/</link>
 				<pubDate>Sun, 06 Dec 2020 22:36:36 +0200</pubDate>
-				<guid>https://kvantos.github.io/tags/linux/</guid>
+				<guid>http://localhost:1313/tags/linux/</guid>
 				<description></description>
 			</item>
 			<item>
 				<title>System</title>
-				<link>https://kvantos.github.io/tags/system/</link>
+				<link>http://localhost:1313/tags/system/</link>
 				<pubDate>Sun, 06 Dec 2020 22:36:36 +0200</pubDate>
-				<guid>https://kvantos.github.io/tags/system/</guid>
+				<guid>http://localhost:1313/tags/system/</guid>
 				<description></description>
 			</item>
 			<item>
 				<title>Udev</title>
-				<link>https://kvantos.github.io/tags/udev/</link>
+				<link>http://localhost:1313/tags/udev/</link>
 				<pubDate>Sun, 06 Dec 2020 22:36:36 +0200</pubDate>
-				<guid>https://kvantos.github.io/tags/udev/</guid>
+				<guid>http://localhost:1313/tags/udev/</guid>
 				<description></description>
 			</item>
 	</channel>

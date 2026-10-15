@@ -4,7 +4,7 @@ locale = "en-us"
 title = "Sergey Kviato Blog"
 copyright = "2020--2026"
 theme = "diary"
-publishdir = "public"
+publishdir = "docs"
 
 [markup]
   [markup.highlight]

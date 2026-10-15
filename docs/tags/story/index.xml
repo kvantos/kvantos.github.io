@@ -2,7 +2,7 @@
 <rss version="2.0" xmlns:atom="http://www.w3.org/2005/Atom">
 	<channel>
 		<title>Story on Sergey Kviato Blog</title>
-		<link>http://localhost:1313/tags/story/</link>
+		<link>https://kvantos.github.io/tags/story/</link>
 		<description>Recent content in Story on Sergey Kviato Blog</description>
 		<generator>Hugo</generator>
 		<language>en-us</language>
@@ -14,12 +14,12 @@
 		
 			<lastBuildDate>Mon, 07 Dec 2020 01:05:47 +0200</lastBuildDate>
 		
-			<atom:link href="http://localhost:1313/tags/story/index.xml" rel="self" type="application/rss+xml" />
+			<atom:link href="https://kvantos.github.io/tags/story/index.xml" rel="self" type="application/rss+xml" />
 			<item>
 				<title>World Around Us</title>
-				<link>http://localhost:1313/posts/world-around-us/</link>
+				<link>https://kvantos.github.io/posts/world-around-us/</link>
 				<pubDate>Mon, 07 Dec 2020 01:05:47 +0200</pubDate>
-				<guid>http://localhost:1313/posts/world-around-us/</guid>
+				<guid>https://kvantos.github.io/posts/world-around-us/</guid>
 				<description>&lt;p&gt;We live in world, but what does world means to us? The surrounding reality? These are value judgments only. We live on planet Earth and this is our world. Humanity has expanded its habitat, agriculture, electricity transport are the achievements of modern mankind. A industrialized society can manage living conditions. But have we solved all problems? There is a world around us and there is garbage, destruction of natural resources. People began to think they on their own, the crown of evolution. But how many people can survive in the forest without technology? The truth is that we are part of the system, ecosystem, part of nature. And we are completely dependent on nature well-being.&lt;/p&gt;</description>
 			</item>
 	</channel>

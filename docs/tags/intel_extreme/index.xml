@@ -2,7 +2,7 @@
 <rss version="2.0" xmlns:atom="http://www.w3.org/2005/Atom">
 	<channel>
 		<title>Intel_extreme on Sergey Kviato Blog</title>
-		<link>http://localhost:1313/tags/intel_extreme/</link>
+		<link>https://kvantos.github.io/tags/intel_extreme/</link>
 		<description>Recent content in Intel_extreme on Sergey Kviato Blog</description>
 		<generator>Hugo</generator>
 		<language>en-us</language>
@@ -14,12 +14,12 @@
 		
 			<lastBuildDate>Thu, 15 Oct 2026 22:00:00 +0200</lastBuildDate>
 		
-			<atom:link href="http://localhost:1313/tags/intel_extreme/index.xml" rel="self" type="application/rss+xml" />
+			<atom:link href="https://kvantos.github.io/tags/intel_extreme/index.xml" rel="self" type="application/rss+xml" />
 			<item>
 				<title>Lock, Stock and Two Tiled Fences: Haiku on a MacBook4,1</title>
-				<link>http://localhost:1313/posts/haiku-on-macbook41/</link>
+				<link>https://kvantos.github.io/posts/haiku-on-macbook41/</link>
 				<pubDate>Thu, 15 Oct 2026 22:00:00 +0200</pubDate>
-				<guid>http://localhost:1313/posts/haiku-on-macbook41/</guid>
+				<guid>https://kvantos.github.io/posts/haiku-on-macbook41/</guid>
 				<description>&lt;p&gt;On a MacBook4,1, Haiku showed a sliced desktop: skewed horizontal bands across the whole screen from boot onwards. It also showed no boot splash. Here is what was wrong, what changed, and why.&lt;/p&gt;&#xA;&lt;h2 id=&#34;tldr&#34;&gt;TL;DR&lt;/h2&gt;&#xA;&lt;table&gt;&#xA;&#x9;&lt;thead&gt;&#xA;&#x9;&#x9;&#x9;&lt;tr&gt;&#xA;&#x9;&#x9;&#x9;&#x9;&#x9;&lt;th&gt;&lt;/th&gt;&#xA;&#x9;&#x9;&#x9;&#x9;&#x9;&lt;th&gt;&lt;/th&gt;&#xA;&#x9;&#x9;&#x9;&lt;/tr&gt;&#xA;&#x9;&lt;/thead&gt;&#xA;&#x9;&lt;tbody&gt;&#xA;&#x9;&#x9;&#x9;&lt;tr&gt;&#xA;&#x9;&#x9;&#x9;&#x9;&#x9;&lt;td&gt;&lt;strong&gt;Hardware&lt;/strong&gt;&lt;/td&gt;&#xA;&#x9;&#x9;&#x9;&#x9;&#x9;&lt;td&gt;MacBook4,1, GMA X3100 (i965GM, &lt;code&gt;0x2a02&lt;/code&gt;, Gen4), LVDS on pipe B, Apple EFI 1.1 (UGA only, no GOP)&lt;/td&gt;&#xA;&#x9;&#x9;&#x9;&lt;/tr&gt;&#xA;&#x9;&#x9;&#x9;&lt;tr&gt;&#xA;&#x9;&#x9;&#x9;&#x9;&#x9;&lt;td&gt;&lt;strong&gt;Symptom&lt;/strong&gt;&lt;/td&gt;&#xA;&#x9;&#x9;&#x9;&#x9;&#x9;&lt;td&gt;Sliced/skewed screen; no boot splash&lt;/td&gt;&#xA;&#x9;&#x9;&#x9;&lt;/tr&gt;&#xA;&#x9;&#x9;&#x9;&lt;tr&gt;&#xA;&#x9;&#x9;&#x9;&#x9;&#x9;&lt;td&gt;&lt;strong&gt;Root cause&lt;/strong&gt;&lt;/td&gt;&#xA;&#x9;&#x9;&#x9;&#x9;&#x9;&lt;td&gt;Apple EFI leaves two &lt;strong&gt;X-tiled fences&lt;/strong&gt; over aperture 0–32 MB. Haiku cleared fences on Gen6+ only, so every linear CPU write to our frame buffer got tiled on the way in.&lt;/td&gt;&#xA;&#x9;&#x9;&#x9;&lt;/tr&gt;&#xA;&#x9;&#x9;&#x9;&lt;tr&gt;&#xA;&#x9;&#x9;&#x9;&#x9;&#x9;&lt;td&gt;&lt;strong&gt;Fix&lt;/strong&gt;&lt;/td&gt;&#xA;&#x9;&#x9;&#x9;&#x9;&#x9;&lt;td&gt;Clear the 16 fences on Gen4–5 before the first mode set&lt;/td&gt;&#xA;&#x9;&#x9;&#x9;&lt;/tr&gt;&#xA;&#x9;&#x9;&#x9;&lt;tr&gt;&#xA;&#x9;&#x9;&#x9;&#x9;&#x9;&lt;td&gt;&lt;strong&gt;Bonus fixes&lt;/strong&gt;&lt;/td&gt;&#xA;&#x9;&#x9;&#x9;&#x9;&#x9;&lt;td&gt;Plane/pipe hygiene on Gen ≤4, the GTT location and entry count in &lt;code&gt;intel_gart&lt;/code&gt;, a missing &lt;code&gt;&amp;amp;&lt;/code&gt;, and a boot splash on GOP-less Intel EFI&lt;/td&gt;&#xA;&#x9;&#x9;&#x9;&lt;/tr&gt;&#xA;&#x9;&lt;/tbody&gt;&#xA;&lt;/table&gt;&#xA;&lt;p&gt;Tested on one MacBook4,1 only. See &lt;a href=&#34;#testing-wanted&#34;&gt;Testing wanted&lt;/a&gt;.&lt;/p&gt;</description>
 			</item>
 	</channel>

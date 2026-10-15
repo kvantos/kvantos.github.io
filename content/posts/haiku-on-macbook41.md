@@ -365,3 +365,15 @@ Only one MacBook4,1 has run this. Boot tests are especially welcome on:
 - **G4x** and any other GOP-less Intel EFI machine.
 
 If it breaks, please send the syslog; it's worth more than a thousand words. *"It's been emotional."*
+
+## Sources of Documentation
+
+1. Haiku boot logs. Everything specific to Macbook4,1 came from them: the fence addresses, stride 8192, stolen memory at 0xbf000000, the FireWire controller at 0xd0200000, and the boot services memory in the EFI map.
+2. Haiku's source code.
+3. Intel's official manuals (PRMs), published for open-source driver developers: Index: https://www.intel.com/content/www/us/en/docs/graphics-for-linux/developer-reference/1-0/overview.html
+  - The volume for my chip is "Intel 965 Express Chipset Family and Intel G35 Express Chipset Graphics Controller PRM" (2008):
+    - Vol. 1 covers the GTT, fences and memory interface.
+    - Vol. 3 covers the display registers: plane control, stride, surface, tile offset.
+  - "Mobile Intel 965 Express Chipset Family Datasheet" covers the PCI configuration registers, such as stolen memory size (GGC, 0x52) and stolen
+    memory base (BSM, 0x5C).
+4. Linux kernel source.

@@ -2,60 +2,81 @@
 <urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9"
   xmlns:xhtml="http://www.w3.org/1999/xhtml">
   <url>
-    <loc>https://kvantos.github.io/categories/</loc>
+    <loc>http://localhost:1313/categories/</loc>
+    <lastmod>2026-10-15T22:00:00+02:00</lastmod>
+  </url><url>
+    <loc>http://localhost:1313/tags/efi/</loc>
+    <lastmod>2026-10-15T22:00:00+02:00</lastmod>
+  </url><url>
+    <loc>http://localhost:1313/tags/gpu/</loc>
+    <lastmod>2026-10-15T22:00:00+02:00</lastmod>
+  </url><url>
+    <loc>http://localhost:1313/categories/haiku/</loc>
+    <lastmod>2026-10-15T22:00:00+02:00</lastmod>
+  </url><url>
+    <loc>http://localhost:1313/tags/haiku/</loc>
+    <lastmod>2026-10-15T22:00:00+02:00</lastmod>
+  </url><url>
+    <loc>http://localhost:1313/tags/intel_extreme/</loc>
+    <lastmod>2026-10-15T22:00:00+02:00</lastmod>
+  </url><url>
+    <loc>http://localhost:1313/posts/haiku-on-macbook41/</loc>
+    <lastmod>2026-10-15T22:00:00+02:00</lastmod>
+  </url><url>
+    <loc>http://localhost:1313/tags/macbook/</loc>
+    <lastmod>2026-10-15T22:00:00+02:00</lastmod>
+  </url><url>
+    <loc>http://localhost:1313/posts/</loc>
+    <lastmod>2026-10-15T22:00:00+02:00</lastmod>
+  </url><url>
+    <loc>http://localhost:1313/</loc>
+    <lastmod>2026-10-15T22:00:00+02:00</lastmod>
+  </url><url>
+    <loc>http://localhost:1313/tags/</loc>
+    <lastmod>2026-10-15T22:00:00+02:00</lastmod>
+  </url><url>
+    <loc>http://localhost:1313/tags/ecology/</loc>
     <lastmod>2020-12-07T01:05:47+02:00</lastmod>
   </url><url>
-    <loc>https://kvantos.github.io/tags/ecology/</loc>
+    <loc>http://localhost:1313/tags/humanbeing/</loc>
     <lastmod>2020-12-07T01:05:47+02:00</lastmod>
   </url><url>
-    <loc>https://kvantos.github.io/tags/humanbeing/</loc>
+    <loc>http://localhost:1313/tags/nature/</loc>
     <lastmod>2020-12-07T01:05:47+02:00</lastmod>
   </url><url>
-    <loc>https://kvantos.github.io/tags/nature/</loc>
+    <loc>http://localhost:1313/tags/sea/</loc>
     <lastmod>2020-12-07T01:05:47+02:00</lastmod>
   </url><url>
-    <loc>https://kvantos.github.io/posts/</loc>
+    <loc>http://localhost:1313/categories/story/</loc>
     <lastmod>2020-12-07T01:05:47+02:00</lastmod>
   </url><url>
-    <loc>https://kvantos.github.io/tags/sea/</loc>
+    <loc>http://localhost:1313/tags/story/</loc>
     <lastmod>2020-12-07T01:05:47+02:00</lastmod>
   </url><url>
-    <loc>https://kvantos.github.io/</loc>
+    <loc>http://localhost:1313/tags/technology/</loc>
     <lastmod>2020-12-07T01:05:47+02:00</lastmod>
   </url><url>
-    <loc>https://kvantos.github.io/categories/story/</loc>
+    <loc>http://localhost:1313/tags/world/</loc>
     <lastmod>2020-12-07T01:05:47+02:00</lastmod>
   </url><url>
-    <loc>https://kvantos.github.io/tags/story/</loc>
+    <loc>http://localhost:1313/posts/world-around-us/</loc>
     <lastmod>2020-12-07T01:05:47+02:00</lastmod>
   </url><url>
-    <loc>https://kvantos.github.io/tags/</loc>
-    <lastmod>2020-12-07T01:05:47+02:00</lastmod>
-  </url><url>
-    <loc>https://kvantos.github.io/tags/technology/</loc>
-    <lastmod>2020-12-07T01:05:47+02:00</lastmod>
-  </url><url>
-    <loc>https://kvantos.github.io/tags/world/</loc>
-    <lastmod>2020-12-07T01:05:47+02:00</lastmod>
-  </url><url>
-    <loc>https://kvantos.github.io/posts/world-around-us/</loc>
-    <lastmod>2020-12-07T01:05:47+02:00</lastmod>
-  </url><url>
-    <loc>https://kvantos.github.io/categories/linux/</loc>
+    <loc>http://localhost:1313/categories/linux/</loc>
     <lastmod>2020-12-06T22:36:36+02:00</lastmod>
   </url><url>
-    <loc>https://kvantos.github.io/tags/linux/</loc>
+    <loc>http://localhost:1313/tags/linux/</loc>
     <lastmod>2020-12-06T22:36:36+02:00</lastmod>
   </url><url>
-    <loc>https://kvantos.github.io/tags/system/</loc>
+    <loc>http://localhost:1313/tags/system/</loc>
     <lastmod>2020-12-06T22:36:36+02:00</lastmod>
   </url><url>
-    <loc>https://kvantos.github.io/tags/udev/</loc>
+    <loc>http://localhost:1313/tags/udev/</loc>
     <lastmod>2020-12-06T22:36:36+02:00</lastmod>
   </url><url>
-    <loc>https://kvantos.github.io/posts/udev-device-mapping/</loc>
+    <loc>http://localhost:1313/posts/udev-device-mapping/</loc>
     <lastmod>2020-12-06T22:36:36+02:00</lastmod>
   </url><url>
-    <loc>https://kvantos.github.io/aboutme/</loc>
+    <loc>http://localhost:1313/aboutme/</loc>
   </url>
 </urlset>

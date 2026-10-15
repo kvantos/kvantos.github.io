@@ -1,36 +1,399 @@
 <rss version="2.0" xmlns:atom="http://www.w3.org/2005/Atom">
   <channel>
     <title>Sergey Kviato Blog</title>
-    <link>https://kvantos.github.io/</link>
+    <link>http://localhost:1313/</link>
     <description>Recent content on Sergey Kviato Blog</description>
     <generator>Hugo -- gohugo.io</generator>
     <language>en-us</language>
     <copyright>2020--2026</copyright>
-    <lastBuildDate>Mon, 07 Dec 2020 01:05:47 +0200</lastBuildDate>
+    <lastBuildDate>Thu, 15 Oct 2026 22:00:00 +0200</lastBuildDate>
     
-        <atom:link href="https://kvantos.github.io/index.xml" rel="self" type="application/rss+xml" />
+        <atom:link href="http://localhost:1313/index.xml" rel="self" type="application/rss+xml" />
+    
+    
+    
+        <item>
+        <title>Lock, Stock and Two Tiled Fences: Haiku on a MacBook4,1</title>
+        <link>http://localhost:1313/posts/haiku-on-macbook41/</link>
+        <pubDate>Thu, 15 Oct 2026 22:00:00 +0200</pubDate>
+        
+        <guid>http://localhost:1313/posts/haiku-on-macbook41/</guid>
+        <description>Sergey Kviato Blog http://localhost:1313/posts/haiku-on-macbook41/ -&lt;p&gt;On a MacBook4,1, Haiku showed a sliced desktop: skewed horizontal bands across the whole screen from boot onwards. It also showed no boot splash. Here is what was wrong, what changed, and why.&lt;/p&gt;
+&lt;h2 id=&#34;tldr&#34;&gt;TL;DR&lt;/h2&gt;
+&lt;table&gt;
+	&lt;thead&gt;
+			&lt;tr&gt;
+					&lt;th&gt;&lt;/th&gt;
+					&lt;th&gt;&lt;/th&gt;
+			&lt;/tr&gt;
+	&lt;/thead&gt;
+	&lt;tbody&gt;
+			&lt;tr&gt;
+					&lt;td&gt;&lt;strong&gt;Hardware&lt;/strong&gt;&lt;/td&gt;
+					&lt;td&gt;MacBook4,1, GMA X3100 (i965GM, &lt;code&gt;0x2a02&lt;/code&gt;, Gen4), LVDS on pipe B, Apple EFI 1.1 (UGA only, no GOP)&lt;/td&gt;
+			&lt;/tr&gt;
+			&lt;tr&gt;
+					&lt;td&gt;&lt;strong&gt;Symptom&lt;/strong&gt;&lt;/td&gt;
+					&lt;td&gt;Sliced/skewed screen; no boot splash&lt;/td&gt;
+			&lt;/tr&gt;
+			&lt;tr&gt;
+					&lt;td&gt;&lt;strong&gt;Root cause&lt;/strong&gt;&lt;/td&gt;
+					&lt;td&gt;Apple EFI leaves two &lt;strong&gt;X-tiled fences&lt;/strong&gt; over aperture 0–32 MB. Haiku cleared fences on Gen6+ only, so every linear CPU write to our frame buffer got tiled on the way in.&lt;/td&gt;
+			&lt;/tr&gt;
+			&lt;tr&gt;
+					&lt;td&gt;&lt;strong&gt;Fix&lt;/strong&gt;&lt;/td&gt;
+					&lt;td&gt;Clear the 16 fences on Gen4–5 before the first mode set&lt;/td&gt;
+			&lt;/tr&gt;
+			&lt;tr&gt;
+					&lt;td&gt;&lt;strong&gt;Bonus fixes&lt;/strong&gt;&lt;/td&gt;
+					&lt;td&gt;Plane/pipe hygiene on Gen ≤4, the GTT location and entry count in &lt;code&gt;intel_gart&lt;/code&gt;, a missing &lt;code&gt;&amp;amp;&lt;/code&gt;, and a boot splash on GOP-less Intel EFI&lt;/td&gt;
+			&lt;/tr&gt;
+	&lt;/tbody&gt;
+&lt;/table&gt;
+&lt;p&gt;Tested on one MacBook4,1 only. See &lt;a href=&#34;#testing-wanted&#34;&gt;Testing wanted&lt;/a&gt;.&lt;/p&gt;
+&lt;h2 id=&#34;root-cause-two-fences&#34;&gt;Root cause: two fences&lt;/h2&gt;
+&lt;p&gt;Haiku never uses tiling. Apple&amp;rsquo;s firmware does, and it didn&amp;rsquo;t tidy up before leaving. The accelerant log, with the new trace:&lt;/p&gt;
+&lt;pre tabindex=&#34;0&#34;&gt;&lt;code&gt;disable_fences: clearing fence 0: start 0x0 end 0xffffff pitch 8192 X-tiled
+disable_fences: clearing fence 1: start 0x1000000 end 0x1ffffff pitch 8192 X-tiled
+&lt;/code&gt;&lt;/pre&gt;&lt;p&gt;A fence makes the GMCH tile CPU writes that go through the aperture. Our frame buffer sits at aperture offset &lt;code&gt;0x10000&lt;/code&gt;, right inside fence 0. app_server writes linear rows with a 5120-byte stride, the fence reshuffles them into 8192-pitch X tiles, and the plane scans that out linearly. The result is bands.&lt;/p&gt;
+&lt;p&gt;Linux has a matching quirk for these machines: &lt;code&gt;sysfb_efi&lt;/code&gt; &lt;code&gt;M_MB&lt;/code&gt;, stride 2048 * 4.&lt;/p&gt;
+&lt;p&gt;Two fences, one pitch, and nobody tidied up. Lesson learned: always check the fences.&lt;/p&gt;
+&lt;h2 id=&#34;1-clear-the-fences-on-gen45-the-actual-fix&#34;&gt;1. Clear the fences on Gen4–5 (the actual fix)&lt;/h2&gt;
+&lt;p&gt;&lt;code&gt;headers/private/graphics/intel_extreme/intel_extreme.h&lt;/code&gt;&lt;/p&gt;
+&lt;div class=&#34;highlight&#34;&gt;&lt;pre tabindex=&#34;0&#34; style=&#34;background-color:#eed;-moz-tab-size:4;-o-tab-size:4;tab-size:4;-webkit-text-size-adjust:none;&#34;&gt;&lt;code class=&#34;language-diff&#34; data-lang=&#34;diff&#34;&gt;&lt;span style=&#34;display:flex;&#34;&gt;&lt;span&gt; #define INTEL_GRAPHICS_MEMORY_FENCE_GEN6(i) (0x100000 + (i * 8))
+&lt;/span&gt;&lt;/span&gt;&lt;span style=&#34;display:flex;&#34;&gt;&lt;span&gt;&lt;span style=&#34;color:#0a0&#34;&gt;+// i965 to IronLake: 16 fences, each 64 bit (low: start, pitch, tiling, valid;
+&lt;/span&gt;&lt;/span&gt;&lt;/span&gt;&lt;span style=&#34;display:flex;&#34;&gt;&lt;span&gt;&lt;span style=&#34;color:#0a0&#34;&gt;+// high: end)
+&lt;/span&gt;&lt;/span&gt;&lt;/span&gt;&lt;span style=&#34;display:flex;&#34;&gt;&lt;span&gt;&lt;span style=&#34;color:#0a0&#34;&gt;+#define INTEL_GRAPHICS_MEMORY_FENCE_965(i)	(0x3000 + (i * 8))
+&lt;/span&gt;&lt;/span&gt;&lt;/span&gt;&lt;span style=&#34;display:flex;&#34;&gt;&lt;span&gt;&lt;span style=&#34;color:#0a0&#34;&gt;+#define INTEL_GRAPHICS_MEMORY_FENCE_VALID	(1UL &amp;lt;&amp;lt; 0)
+&lt;/span&gt;&lt;/span&gt;&lt;/span&gt;&lt;/code&gt;&lt;/pre&gt;&lt;/div&gt;&lt;p&gt;&lt;code&gt;src/add-ons/accelerants/intel_extreme/accelerant.cpp&lt;/code&gt;, &lt;code&gt;disable_fences()&lt;/code&gt;. It runs at the end of &lt;code&gt;init_accelerant()&lt;/code&gt;, before the first mode set:&lt;/p&gt;
+&lt;div class=&#34;highlight&#34;&gt;&lt;pre tabindex=&#34;0&#34; style=&#34;background-color:#eed;-moz-tab-size:4;-o-tab-size:4;tab-size:4;-webkit-text-size-adjust:none;&#34;&gt;&lt;code class=&#34;language-diff&#34; data-lang=&#34;diff&#34;&gt;&lt;span style=&#34;display:flex;&#34;&gt;&lt;span&gt; 		for (int i = 0; i &amp;lt; numFences; i++)
+&lt;/span&gt;&lt;/span&gt;&lt;span style=&#34;display:flex;&#34;&gt;&lt;span&gt; 			write32(INTEL_GRAPHICS_MEMORY_FENCE_GEN6(i), 0);
+&lt;/span&gt;&lt;/span&gt;&lt;span style=&#34;display:flex;&#34;&gt;&lt;span&gt;&lt;span style=&#34;color:#0a0&#34;&gt;+	} else if (gInfo-&amp;gt;shared_info-&amp;gt;device_type.Generation() &amp;gt;= 4) {
+&lt;/span&gt;&lt;/span&gt;&lt;/span&gt;&lt;span style=&#34;display:flex;&#34;&gt;&lt;span&gt;&lt;span style=&#34;color:#0a0&#34;&gt;+		// The firmware may leave fences around its own tiled frame buffer
+&lt;/span&gt;&lt;/span&gt;&lt;/span&gt;&lt;span style=&#34;display:flex;&#34;&gt;&lt;span&gt;&lt;span style=&#34;color:#0a0&#34;&gt;+		// (Apple EFI on i965GM does). CPU writes through the aperture to a
+&lt;/span&gt;&lt;/span&gt;&lt;/span&gt;&lt;span style=&#34;display:flex;&#34;&gt;&lt;span&gt;&lt;span style=&#34;color:#0a0&#34;&gt;+		// fenced range get tiled, which garbles our linear frame buffer.
+&lt;/span&gt;&lt;/span&gt;&lt;/span&gt;&lt;span style=&#34;display:flex;&#34;&gt;&lt;span&gt;&lt;span style=&#34;color:#0a0&#34;&gt;+		for (int i = 0; i &amp;lt; 16; i++) {
+&lt;/span&gt;&lt;/span&gt;&lt;/span&gt;&lt;span style=&#34;display:flex;&#34;&gt;&lt;span&gt;&lt;span style=&#34;color:#0a0&#34;&gt;+			uint32 fence = INTEL_GRAPHICS_MEMORY_FENCE_965(i);
+&lt;/span&gt;&lt;/span&gt;&lt;/span&gt;&lt;span style=&#34;display:flex;&#34;&gt;&lt;span&gt;&lt;span style=&#34;color:#0a0&#34;&gt;+			uint32 low = read32(fence);
+&lt;/span&gt;&lt;/span&gt;&lt;/span&gt;&lt;span style=&#34;display:flex;&#34;&gt;&lt;span&gt;&lt;span style=&#34;color:#0a0&#34;&gt;+			if ((low &amp;amp; INTEL_GRAPHICS_MEMORY_FENCE_VALID) != 0) {
+&lt;/span&gt;&lt;/span&gt;&lt;/span&gt;&lt;span style=&#34;display:flex;&#34;&gt;&lt;span&gt;&lt;span style=&#34;color:#0a0&#34;&gt;+				TRACE(&amp;#34;%s: clearing fence %d: start 0x%&amp;#34; B_PRIx32 &amp;#34; end 0x%&amp;#34;
+&lt;/span&gt;&lt;/span&gt;&lt;/span&gt;&lt;span style=&#34;display:flex;&#34;&gt;&lt;span&gt;&lt;span style=&#34;color:#0a0&#34;&gt;+					B_PRIx32 &amp;#34; pitch %&amp;#34; B_PRIu32 &amp;#34; %s-tiled\n&amp;#34;, __func__, i,
+&lt;/span&gt;&lt;/span&gt;&lt;/span&gt;&lt;span style=&#34;display:flex;&#34;&gt;&lt;span&gt;&lt;span style=&#34;color:#0a0&#34;&gt;+					low &amp;amp; ~(uint32)0xfff, read32(fence + 4) | 0xfff,
+&lt;/span&gt;&lt;/span&gt;&lt;/span&gt;&lt;span style=&#34;display:flex;&#34;&gt;&lt;span&gt;&lt;span style=&#34;color:#0a0&#34;&gt;+					(((low &amp;gt;&amp;gt; 2) &amp;amp; 0x3ff) + 1) * 128,
+&lt;/span&gt;&lt;/span&gt;&lt;/span&gt;&lt;span style=&#34;display:flex;&#34;&gt;&lt;span&gt;&lt;span style=&#34;color:#0a0&#34;&gt;+					(low &amp;amp; (1UL &amp;lt;&amp;lt; 1)) != 0 ? &amp;#34;Y&amp;#34; : &amp;#34;X&amp;#34;);
+&lt;/span&gt;&lt;/span&gt;&lt;/span&gt;&lt;span style=&#34;display:flex;&#34;&gt;&lt;span&gt;&lt;span style=&#34;color:#0a0&#34;&gt;+			}
+&lt;/span&gt;&lt;/span&gt;&lt;/span&gt;&lt;span style=&#34;display:flex;&#34;&gt;&lt;span&gt;&lt;span style=&#34;color:#0a0&#34;&gt;+			write32(fence, 0);
+&lt;/span&gt;&lt;/span&gt;&lt;/span&gt;&lt;span style=&#34;display:flex;&#34;&gt;&lt;span&gt;&lt;span style=&#34;color:#0a0&#34;&gt;+			write32(fence + 4, 0);
+&lt;/span&gt;&lt;/span&gt;&lt;/span&gt;&lt;span style=&#34;display:flex;&#34;&gt;&lt;span&gt;&lt;span style=&#34;color:#0a0&#34;&gt;+		}
+&lt;/span&gt;&lt;/span&gt;&lt;/span&gt;&lt;span style=&#34;display:flex;&#34;&gt;&lt;span&gt;&lt;span style=&#34;color:#0a0&#34;&gt;+		read32(INTEL_GRAPHICS_MEMORY_FENCE_965(15));
+&lt;/span&gt;&lt;/span&gt;&lt;/span&gt;&lt;span style=&#34;display:flex;&#34;&gt;&lt;span&gt; 	}
+&lt;/span&gt;&lt;/span&gt;&lt;/code&gt;&lt;/pre&gt;&lt;/div&gt;&lt;p&gt;The Gen6+ branch comes first, so this only covers Gen4 and Gen5 (Ironlake uses the same 0x3000 layout).&lt;/p&gt;
+&lt;h2 id=&#34;2-planepipe-hygiene-on-gen-4&#34;&gt;2. Plane/pipe hygiene on Gen ≤4&lt;/h2&gt;
+&lt;p&gt;These changes came first, during the hunt. On their own they didn&amp;rsquo;t fix the slicing, but each one closes a real hole left by firmware state, so they stay.&lt;/p&gt;
+&lt;p&gt;On Gen2–4 any primary plane can feed any pipe (DSPCNTR bit 24). Haiku assumed plane B feeds pipe B and never wrote the bit. A tiled plane also scans from &lt;code&gt;DSPxTILEOFF&lt;/code&gt;, not &lt;code&gt;LINOFF&lt;/code&gt;.&lt;/p&gt;
+&lt;p&gt;&lt;code&gt;headers/private/graphics/intel_extreme/intel_extreme.h&lt;/code&gt;&lt;/p&gt;
+&lt;div class=&#34;highlight&#34;&gt;&lt;pre tabindex=&#34;0&#34; style=&#34;background-color:#eed;-moz-tab-size:4;-o-tab-size:4;tab-size:4;-webkit-text-size-adjust:none;&#34;&gt;&lt;code class=&#34;language-diff&#34; data-lang=&#34;diff&#34;&gt;&lt;span style=&#34;display:flex;&#34;&gt;&lt;span&gt; #define DISPLAY_CONTROL_TILE_MODE_MASK	(7UL &amp;lt;&amp;lt; 10)
+&lt;/span&gt;&lt;/span&gt;&lt;span style=&#34;display:flex;&#34;&gt;&lt;span&gt;&lt;span style=&#34;color:#0a0&#34;&gt;+// Gen2-4 only: primary plane to pipe assignment (overlaps Skylake color bits)
+&lt;/span&gt;&lt;/span&gt;&lt;/span&gt;&lt;span style=&#34;display:flex;&#34;&gt;&lt;span&gt;&lt;span style=&#34;color:#0a0&#34;&gt;+#define DISPLAY_CONTROL_PIPE_SELECT_MASK	(3UL &amp;lt;&amp;lt; 24)
+&lt;/span&gt;&lt;/span&gt;&lt;/span&gt;&lt;span style=&#34;display:flex;&#34;&gt;&lt;span&gt;&lt;span style=&#34;color:#0a0&#34;&gt;+#define DISPLAY_CONTROL_PIPE_B			(1UL &amp;lt;&amp;lt; 24)
+&lt;/span&gt;&lt;/span&gt;&lt;/span&gt;&lt;span style=&#34;display:flex;&#34;&gt;&lt;span&gt;&lt;span style=&#34;color:#0a0&#34;&gt;+
+&lt;/span&gt;&lt;/span&gt;&lt;/span&gt;&lt;span style=&#34;display:flex;&#34;&gt;&lt;span&gt;&lt;span style=&#34;color:#0a0&#34;&gt;+// i965 and G4x: used instead of INTEL_DISPLAY_A_BASE when the plane is tiled
+&lt;/span&gt;&lt;/span&gt;&lt;/span&gt;&lt;span style=&#34;display:flex;&#34;&gt;&lt;span&gt;&lt;span style=&#34;color:#0a0&#34;&gt;+#define INTEL_DISPLAY_A_TILE_OFFSET		INTEL_DISPLAY_A_OFFSET_HAS
+&lt;/span&gt;&lt;/span&gt;&lt;/span&gt;&lt;span style=&#34;display:flex;&#34;&gt;&lt;span&gt;&lt;span style=&#34;color:#0a0&#34;&gt;+#define INTEL_DISPLAY_B_TILE_OFFSET		INTEL_DISPLAY_B_OFFSET_HAS
+&lt;/span&gt;&lt;/span&gt;&lt;/span&gt;&lt;/code&gt;&lt;/pre&gt;&lt;/div&gt;&lt;p&gt;&lt;code&gt;src/add-ons/accelerants/intel_extreme/Pipes.cpp&lt;/code&gt;, &lt;code&gt;Pipe::Enable()&lt;/code&gt;: tie our plane to our pipe and zero the tile offset.&lt;/p&gt;
+&lt;div class=&#34;highlight&#34;&gt;&lt;pre tabindex=&#34;0&#34; style=&#34;background-color:#eed;-moz-tab-size:4;-o-tab-size:4;tab-size:4;-webkit-text-size-adjust:none;&#34;&gt;&lt;code class=&#34;language-diff&#34; data-lang=&#34;diff&#34;&gt;&lt;span style=&#34;display:flex;&#34;&gt;&lt;span&gt;&lt;span style=&#34;color:#a00&#34;&gt;-		write32(planeReg, (read32(planeReg) | DISPLAY_CONTROL_ENABLED)
+&lt;/span&gt;&lt;/span&gt;&lt;/span&gt;&lt;span style=&#34;display:flex;&#34;&gt;&lt;span&gt;&lt;span style=&#34;color:#a00&#34;&gt;-			&amp;amp; ~DISPLAY_CONTROL_TILE_MODE_MASK);
+&lt;/span&gt;&lt;/span&gt;&lt;/span&gt;&lt;span style=&#34;display:flex;&#34;&gt;&lt;span&gt;&lt;span style=&#34;color:#0a0&#34;&gt;+		uint32 planeControl = (read32(planeReg) | DISPLAY_CONTROL_ENABLED)
+&lt;/span&gt;&lt;/span&gt;&lt;/span&gt;&lt;span style=&#34;display:flex;&#34;&gt;&lt;span&gt;&lt;span style=&#34;color:#0a0&#34;&gt;+			&amp;amp; ~DISPLAY_CONTROL_TILE_MODE_MASK;
+&lt;/span&gt;&lt;/span&gt;&lt;/span&gt;&lt;span style=&#34;display:flex;&#34;&gt;&lt;span&gt;&lt;span style=&#34;color:#0a0&#34;&gt;+		if (gInfo-&amp;gt;shared_info-&amp;gt;device_type.Generation() &amp;lt;= 4
+&lt;/span&gt;&lt;/span&gt;&lt;/span&gt;&lt;span style=&#34;display:flex;&#34;&gt;&lt;span&gt;&lt;span style=&#34;color:#0a0&#34;&gt;+			&amp;amp;&amp;amp; fPipeIndex &amp;lt;= INTEL_PIPE_B) {
+&lt;/span&gt;&lt;/span&gt;&lt;/span&gt;&lt;span style=&#34;display:flex;&#34;&gt;&lt;span&gt;&lt;span style=&#34;color:#0a0&#34;&gt;+			// Planes can feed either pipe here, and the firmware may have
+&lt;/span&gt;&lt;/span&gt;&lt;/span&gt;&lt;span style=&#34;display:flex;&#34;&gt;&lt;span&gt;&lt;span style=&#34;color:#0a0&#34;&gt;+			// crossed them (MacBook EFI); tie our plane to our pipe.
+&lt;/span&gt;&lt;/span&gt;&lt;/span&gt;&lt;span style=&#34;display:flex;&#34;&gt;&lt;span&gt;&lt;span style=&#34;color:#0a0&#34;&gt;+			planeControl &amp;amp;= ~DISPLAY_CONTROL_PIPE_SELECT_MASK;
+&lt;/span&gt;&lt;/span&gt;&lt;/span&gt;&lt;span style=&#34;display:flex;&#34;&gt;&lt;span&gt;&lt;span style=&#34;color:#0a0&#34;&gt;+			if (fPipeIndex == INTEL_PIPE_B)
+&lt;/span&gt;&lt;/span&gt;&lt;/span&gt;&lt;span style=&#34;display:flex;&#34;&gt;&lt;span&gt;&lt;span style=&#34;color:#0a0&#34;&gt;+				planeControl |= DISPLAY_CONTROL_PIPE_B;
+&lt;/span&gt;&lt;/span&gt;&lt;/span&gt;&lt;span style=&#34;display:flex;&#34;&gt;&lt;span&gt;&lt;span style=&#34;color:#0a0&#34;&gt;+			if (gInfo-&amp;gt;shared_info-&amp;gt;device_type.Generation() == 4)
+&lt;/span&gt;&lt;/span&gt;&lt;/span&gt;&lt;span style=&#34;display:flex;&#34;&gt;&lt;span&gt;&lt;span style=&#34;color:#0a0&#34;&gt;+				write32(INTEL_DISPLAY_A_TILE_OFFSET + fPlaneOffset, 0);
+&lt;/span&gt;&lt;/span&gt;&lt;/span&gt;&lt;span style=&#34;display:flex;&#34;&gt;&lt;span&gt;&lt;span style=&#34;color:#0a0&#34;&gt;+		}
+&lt;/span&gt;&lt;/span&gt;&lt;/span&gt;&lt;span style=&#34;display:flex;&#34;&gt;&lt;span&gt;&lt;span style=&#34;color:#0a0&#34;&gt;+		write32(planeReg, planeControl);
+&lt;/span&gt;&lt;/span&gt;&lt;/span&gt;&lt;/code&gt;&lt;/pre&gt;&lt;/div&gt;&lt;p&gt;&lt;code&gt;src/add-ons/accelerants/intel_extreme/mode.cpp&lt;/code&gt;, &lt;code&gt;intel_set_display_mode()&lt;/code&gt;:&lt;/p&gt;
+&lt;ul&gt;
+&lt;li&gt;Turn off every firmware plane before touching the ports.&lt;/li&gt;
+&lt;li&gt;Program the stride before the planes come back on, so the first surface write latches the new stride instead of the firmware&amp;rsquo;s.&lt;/li&gt;
+&lt;/ul&gt;
+&lt;p&gt;Plane registers are double-buffered: a write to SURF latches them on i965, a write to BASE on older chips.&lt;/p&gt;
+&lt;div class=&#34;highlight&#34;&gt;&lt;pre tabindex=&#34;0&#34; style=&#34;background-color:#eed;-moz-tab-size:4;-o-tab-size:4;tab-size:4;-webkit-text-size-adjust:none;&#34;&gt;&lt;code class=&#34;language-diff&#34; data-lang=&#34;diff&#34;&gt;&lt;span style=&#34;display:flex;&#34;&gt;&lt;span&gt; 	write32(INTEL_VGA_DISPLAY_CONTROL, VGA_DISPLAY_DISABLED);
+&lt;/span&gt;&lt;/span&gt;&lt;span style=&#34;display:flex;&#34;&gt;&lt;span&gt; 	read32(INTEL_VGA_DISPLAY_CONTROL);
+&lt;/span&gt;&lt;/span&gt;&lt;span style=&#34;display:flex;&#34;&gt;&lt;span&gt; 
+&lt;/span&gt;&lt;/span&gt;&lt;span style=&#34;display:flex;&#34;&gt;&lt;span&gt;&lt;span style=&#34;color:#0a0&#34;&gt;+	if (sharedInfo.device_type.Generation() &amp;lt;= 4) {
+&lt;/span&gt;&lt;/span&gt;&lt;/span&gt;&lt;span style=&#34;display:flex;&#34;&gt;&lt;span&gt;&lt;span style=&#34;color:#0a0&#34;&gt;+		// The firmware may have left a plane enabled on a pipe we are about
+&lt;/span&gt;&lt;/span&gt;&lt;/span&gt;&lt;span style=&#34;display:flex;&#34;&gt;&lt;span&gt;&lt;span style=&#34;color:#0a0&#34;&gt;+		// to drive (possibly tiled, and with its own stride). Turn all
+&lt;/span&gt;&lt;/span&gt;&lt;/span&gt;&lt;span style=&#34;display:flex;&#34;&gt;&lt;span&gt;&lt;span style=&#34;color:#0a0&#34;&gt;+		// primary planes off; Pipe::Enable() turns on the ones we use.
+&lt;/span&gt;&lt;/span&gt;&lt;/span&gt;&lt;span style=&#34;display:flex;&#34;&gt;&lt;span&gt;&lt;span style=&#34;color:#0a0&#34;&gt;+		write32(INTEL_DISPLAY_A_CONTROL,
+&lt;/span&gt;&lt;/span&gt;&lt;/span&gt;&lt;span style=&#34;display:flex;&#34;&gt;&lt;span&gt;&lt;span style=&#34;color:#0a0&#34;&gt;+			read32(INTEL_DISPLAY_A_CONTROL) &amp;amp; ~DISPLAY_CONTROL_ENABLED);
+&lt;/span&gt;&lt;/span&gt;&lt;/span&gt;&lt;span style=&#34;display:flex;&#34;&gt;&lt;span&gt;&lt;span style=&#34;color:#0a0&#34;&gt;+		write32(INTEL_DISPLAY_B_CONTROL,
+&lt;/span&gt;&lt;/span&gt;&lt;/span&gt;&lt;span style=&#34;display:flex;&#34;&gt;&lt;span&gt;&lt;span style=&#34;color:#0a0&#34;&gt;+			read32(INTEL_DISPLAY_B_CONTROL) &amp;amp; ~DISPLAY_CONTROL_ENABLED);
+&lt;/span&gt;&lt;/span&gt;&lt;/span&gt;&lt;span style=&#34;display:flex;&#34;&gt;&lt;span&gt;&lt;span style=&#34;color:#0a0&#34;&gt;+		// plane updates are only latched by a write to the surface register
+&lt;/span&gt;&lt;/span&gt;&lt;/span&gt;&lt;span style=&#34;display:flex;&#34;&gt;&lt;span&gt;&lt;span style=&#34;color:#0a0&#34;&gt;+		// (i965+), or to the base register on older chips
+&lt;/span&gt;&lt;/span&gt;&lt;/span&gt;&lt;span style=&#34;display:flex;&#34;&gt;&lt;span&gt;&lt;span style=&#34;color:#0a0&#34;&gt;+		uint32 latchA = sharedInfo.device_type.Generation() == 4
+&lt;/span&gt;&lt;/span&gt;&lt;/span&gt;&lt;span style=&#34;display:flex;&#34;&gt;&lt;span&gt;&lt;span style=&#34;color:#0a0&#34;&gt;+			? INTEL_DISPLAY_A_SURFACE : INTEL_DISPLAY_A_BASE;
+&lt;/span&gt;&lt;/span&gt;&lt;/span&gt;&lt;span style=&#34;display:flex;&#34;&gt;&lt;span&gt;&lt;span style=&#34;color:#0a0&#34;&gt;+		uint32 latchB = sharedInfo.device_type.Generation() == 4
+&lt;/span&gt;&lt;/span&gt;&lt;/span&gt;&lt;span style=&#34;display:flex;&#34;&gt;&lt;span&gt;&lt;span style=&#34;color:#0a0&#34;&gt;+			? INTEL_DISPLAY_B_SURFACE : INTEL_DISPLAY_B_BASE;
+&lt;/span&gt;&lt;/span&gt;&lt;/span&gt;&lt;span style=&#34;display:flex;&#34;&gt;&lt;span&gt;&lt;span style=&#34;color:#0a0&#34;&gt;+		write32(latchA, read32(latchA));
+&lt;/span&gt;&lt;/span&gt;&lt;/span&gt;&lt;span style=&#34;display:flex;&#34;&gt;&lt;span&gt;&lt;span style=&#34;color:#0a0&#34;&gt;+		write32(latchB, read32(latchB));
+&lt;/span&gt;&lt;/span&gt;&lt;/span&gt;&lt;span style=&#34;display:flex;&#34;&gt;&lt;span&gt;&lt;span style=&#34;color:#0a0&#34;&gt;+		wait_for_vblank();
+&lt;/span&gt;&lt;/span&gt;&lt;/span&gt;&lt;span style=&#34;display:flex;&#34;&gt;&lt;span&gt;&lt;span style=&#34;color:#0a0&#34;&gt;+	}
+&lt;/span&gt;&lt;/span&gt;&lt;/span&gt;&lt;span style=&#34;display:flex;&#34;&gt;&lt;span&gt;&lt;span style=&#34;color:#0a0&#34;&gt;+
+&lt;/span&gt;&lt;/span&gt;&lt;/span&gt;&lt;/code&gt;&lt;/pre&gt;&lt;/div&gt;&lt;div class=&#34;highlight&#34;&gt;&lt;pre tabindex=&#34;0&#34; style=&#34;background-color:#eed;-moz-tab-size:4;-o-tab-size:4;tab-size:4;-webkit-text-size-adjust:none;&#34;&gt;&lt;code class=&#34;language-diff&#34; data-lang=&#34;diff&#34;&gt;&lt;span style=&#34;display:flex;&#34;&gt;&lt;span&gt; 	program_pipe_color_modes(colorMode);
+&lt;/span&gt;&lt;/span&gt;&lt;span style=&#34;display:flex;&#34;&gt;&lt;span&gt; 
+&lt;/span&gt;&lt;/span&gt;&lt;span style=&#34;display:flex;&#34;&gt;&lt;span&gt;&lt;span style=&#34;color:#0a0&#34;&gt;+	if (sharedInfo.device_type.Generation() &amp;lt;= 4) {
+&lt;/span&gt;&lt;/span&gt;&lt;/span&gt;&lt;span style=&#34;display:flex;&#34;&gt;&lt;span&gt;&lt;span style=&#34;color:#0a0&#34;&gt;+		// Program the stride before the planes come back on, so that the
+&lt;/span&gt;&lt;/span&gt;&lt;/span&gt;&lt;span style=&#34;display:flex;&#34;&gt;&lt;span&gt;&lt;span style=&#34;color:#0a0&#34;&gt;+		// surface write in set_display_power_mode() already latches it,
+&lt;/span&gt;&lt;/span&gt;&lt;/span&gt;&lt;span style=&#34;display:flex;&#34;&gt;&lt;span&gt;&lt;span style=&#34;color:#0a0&#34;&gt;+		// instead of scanning out with the old (firmware) stride.
+&lt;/span&gt;&lt;/span&gt;&lt;/span&gt;&lt;span style=&#34;display:flex;&#34;&gt;&lt;span&gt;&lt;span style=&#34;color:#0a0&#34;&gt;+		write32(INTEL_DISPLAY_A_BYTES_PER_ROW, bytesPerRow);
+&lt;/span&gt;&lt;/span&gt;&lt;/span&gt;&lt;span style=&#34;display:flex;&#34;&gt;&lt;span&gt;&lt;span style=&#34;color:#0a0&#34;&gt;+		write32(INTEL_DISPLAY_B_BYTES_PER_ROW, bytesPerRow);
+&lt;/span&gt;&lt;/span&gt;&lt;/span&gt;&lt;span style=&#34;display:flex;&#34;&gt;&lt;span&gt;&lt;span style=&#34;color:#0a0&#34;&gt;+		sharedInfo.current_mode = target;
+&lt;/span&gt;&lt;/span&gt;&lt;/span&gt;&lt;span style=&#34;display:flex;&#34;&gt;&lt;span&gt;&lt;span style=&#34;color:#0a0&#34;&gt;+		sharedInfo.bytes_per_row = bytesPerRow;
+&lt;/span&gt;&lt;/span&gt;&lt;/span&gt;&lt;span style=&#34;display:flex;&#34;&gt;&lt;span&gt;&lt;span style=&#34;color:#0a0&#34;&gt;+		sharedInfo.bits_per_pixel = bitsPerPixel;
+&lt;/span&gt;&lt;/span&gt;&lt;/span&gt;&lt;span style=&#34;display:flex;&#34;&gt;&lt;span&gt;&lt;span style=&#34;color:#0a0&#34;&gt;+	}
+&lt;/span&gt;&lt;/span&gt;&lt;/span&gt;&lt;span style=&#34;display:flex;&#34;&gt;&lt;span&gt;&lt;span style=&#34;color:#0a0&#34;&gt;+
+&lt;/span&gt;&lt;/span&gt;&lt;/span&gt;&lt;span style=&#34;display:flex;&#34;&gt;&lt;span&gt; 	// TODO: This may not be neccesary (see DPMS OFF at top)
+&lt;/span&gt;&lt;/span&gt;&lt;span style=&#34;display:flex;&#34;&gt;&lt;span&gt; 	set_display_power_mode(sharedInfo.dpms_mode);
+&lt;/span&gt;&lt;/span&gt;&lt;/code&gt;&lt;/pre&gt;&lt;/div&gt;&lt;h2 id=&#34;3-intel_gart-the-gtt-was-in-someone-elses-house&#34;&gt;3. intel_gart: the GTT was in someone else&amp;rsquo;s house&lt;/h2&gt;
+&lt;p&gt;Two bugs, found while reading the boot logs.&lt;/p&gt;
+&lt;p&gt;&lt;strong&gt;Wrong GTT location.&lt;/strong&gt; Everything except 8xx and 91x assumed MMIO + 2 MB. That&amp;rsquo;s correct for G4x and later only:&lt;/p&gt;
+&lt;ul&gt;
+&lt;li&gt;945, G33 and Pineview have a separate GTT BAR (like 915).&lt;/li&gt;
+&lt;li&gt;On i965 the GTT directly follows the 512 KB of registers in its 1 MB MMIO BAR.&lt;/li&gt;
+&lt;/ul&gt;
+&lt;p&gt;On this MacBook, MMIO + 2 MB is &lt;code&gt;0xd0200000&lt;/code&gt;: the &lt;strong&gt;FireWire controller&lt;/strong&gt; behind the PCI bridge. So the GTT was never programmed, and all GTT writes went to the FireWire controller. It only appeared to work because the firmware&amp;rsquo;s GTT already mapped stolen memory linearly.&lt;/p&gt;
+&lt;p&gt;&lt;strong&gt;Wrong entry count.&lt;/strong&gt; &lt;code&gt;gttSize / 4096&lt;/code&gt; treats each entry as a page. Before Gen8 an entry is 4 bytes, so a 512 KB GTT was reported as 128 entries instead of 131072, and the scratch-page loop skipped nearly the whole table. Gen8+ uses 64-bit entries, which &lt;code&gt;set_gtt_entry()&lt;/code&gt; doesn&amp;rsquo;t handle yet, so it keeps the old count on purpose.&lt;/p&gt;
+&lt;p&gt;&lt;code&gt;src/add-ons/kernel/busses/agp_gart/intel_gart.cpp&lt;/code&gt;, &lt;code&gt;intel_map()&lt;/code&gt;&lt;/p&gt;
+&lt;div class=&#34;highlight&#34;&gt;&lt;pre tabindex=&#34;0&#34; style=&#34;background-color:#eed;-moz-tab-size:4;-o-tab-size:4;tab-size:4;-webkit-text-size-adjust:none;&#34;&gt;&lt;code class=&#34;language-diff&#34; data-lang=&#34;diff&#34;&gt;&lt;span style=&#34;display:flex;&#34;&gt;&lt;span&gt;&lt;span style=&#34;color:#a00&#34;&gt;-	} else if (info.type-&amp;gt;InGroup(INTEL_GROUP_91x)) {
+&lt;/span&gt;&lt;/span&gt;&lt;/span&gt;&lt;span style=&#34;display:flex;&#34;&gt;&lt;span&gt;&lt;span style=&#34;color:#a00&#34;&gt;-		info.gtt_physical_base = get_pci_config(info.display, i915_GTT_BASE, 4);
+&lt;/span&gt;&lt;/span&gt;&lt;/span&gt;&lt;span style=&#34;display:flex;&#34;&gt;&lt;span&gt;&lt;span style=&#34;color:#0a0&#34;&gt;+	} else if (info.type-&amp;gt;Generation() == 3) {
+&lt;/span&gt;&lt;/span&gt;&lt;/span&gt;&lt;span style=&#34;display:flex;&#34;&gt;&lt;span&gt;&lt;span style=&#34;color:#0a0&#34;&gt;+		// 915, 945, G33 and Pineview have a separate GTT BAR
+&lt;/span&gt;&lt;/span&gt;&lt;/span&gt;&lt;span style=&#34;display:flex;&#34;&gt;&lt;span&gt;&lt;span style=&#34;color:#0a0&#34;&gt;+		info.gtt_physical_base = get_pci_config(info.display, i915_GTT_BASE, 4)
+&lt;/span&gt;&lt;/span&gt;&lt;/span&gt;&lt;span style=&#34;display:flex;&#34;&gt;&lt;span&gt;&lt;span style=&#34;color:#0a0&#34;&gt;+			&amp;amp; ~(phys_addr_t)0xf;
+&lt;/span&gt;&lt;/span&gt;&lt;/span&gt;&lt;span style=&#34;display:flex;&#34;&gt;&lt;span&gt;&lt;span style=&#34;color:#0a0&#34;&gt;+	} else if (info.type-&amp;gt;Generation() == 4
+&lt;/span&gt;&lt;/span&gt;&lt;/span&gt;&lt;span style=&#34;display:flex;&#34;&gt;&lt;span&gt;&lt;span style=&#34;color:#0a0&#34;&gt;+		&amp;amp;&amp;amp; !info.type-&amp;gt;InGroup(INTEL_GROUP_G4x)) {
+&lt;/span&gt;&lt;/span&gt;&lt;/span&gt;&lt;span style=&#34;display:flex;&#34;&gt;&lt;span&gt;&lt;span style=&#34;color:#0a0&#34;&gt;+		// i965: the GTT follows the 512 KB of registers in the MMIO BAR
+&lt;/span&gt;&lt;/span&gt;&lt;/span&gt;&lt;span style=&#34;display:flex;&#34;&gt;&lt;span&gt;&lt;span style=&#34;color:#0a0&#34;&gt;+		info.gtt_physical_base = addr + (512UL &amp;lt;&amp;lt; 10);
+&lt;/span&gt;&lt;/span&gt;&lt;/span&gt;&lt;span style=&#34;display:flex;&#34;&gt;&lt;span&gt; 	} else {
+&lt;/span&gt;&lt;/span&gt;&lt;span style=&#34;display:flex;&#34;&gt;&lt;span&gt;&lt;span style=&#34;color:#a00&#34;&gt;-		// 945+?
+&lt;/span&gt;&lt;/span&gt;&lt;/span&gt;&lt;span style=&#34;display:flex;&#34;&gt;&lt;span&gt;&lt;span style=&#34;color:#0a0&#34;&gt;+		// G4x and later
+&lt;/span&gt;&lt;/span&gt;&lt;/span&gt;&lt;span style=&#34;display:flex;&#34;&gt;&lt;span&gt; 		info.gtt_physical_base = addr + (2UL &amp;lt;&amp;lt; 20);
+&lt;/span&gt;&lt;/span&gt;&lt;span style=&#34;display:flex;&#34;&gt;&lt;span&gt; 	}
+&lt;/span&gt;&lt;/span&gt;&lt;span style=&#34;display:flex;&#34;&gt;&lt;span&gt; 
+&lt;/span&gt;&lt;/span&gt;&lt;span style=&#34;display:flex;&#34;&gt;&lt;span&gt; 	size_t gttSize = determine_gtt_size(info);
+&lt;/span&gt;&lt;/span&gt;&lt;span style=&#34;display:flex;&#34;&gt;&lt;span&gt; 	size_t stolenSize = determine_gtt_stolen(info);
+&lt;/span&gt;&lt;/span&gt;&lt;span style=&#34;display:flex;&#34;&gt;&lt;span&gt; 
+&lt;/span&gt;&lt;/span&gt;&lt;span style=&#34;display:flex;&#34;&gt;&lt;span&gt;&lt;span style=&#34;color:#a00&#34;&gt;-	info.gtt_entries = gttSize / 4096;
+&lt;/span&gt;&lt;/span&gt;&lt;/span&gt;&lt;span style=&#34;display:flex;&#34;&gt;&lt;span&gt;&lt;span style=&#34;color:#0a0&#34;&gt;+	if (info.type-&amp;gt;Generation() == 4 &amp;amp;&amp;amp; !info.type-&amp;gt;InGroup(INTEL_GROUP_G4x)
+&lt;/span&gt;&lt;/span&gt;&lt;/span&gt;&lt;span style=&#34;display:flex;&#34;&gt;&lt;span&gt;&lt;span style=&#34;color:#0a0&#34;&gt;+		&amp;amp;&amp;amp; info.gtt_physical_base + gttSize &amp;gt; addr + barSize) {
+&lt;/span&gt;&lt;/span&gt;&lt;/span&gt;&lt;span style=&#34;display:flex;&#34;&gt;&lt;span&gt;&lt;span style=&#34;color:#0a0&#34;&gt;+		// we would write the GTT entries into whatever device follows
+&lt;/span&gt;&lt;/span&gt;&lt;/span&gt;&lt;span style=&#34;display:flex;&#34;&gt;&lt;span&gt;&lt;span style=&#34;color:#0a0&#34;&gt;+		ERROR(&amp;#34;GTT (%&amp;#34; B_PRIuSIZE &amp;#34; bytes at 0x%&amp;#34; B_PRIxPHYSADDR &amp;#34;) is outside&amp;#34;
+&lt;/span&gt;&lt;/span&gt;&lt;/span&gt;&lt;span style=&#34;display:flex;&#34;&gt;&lt;span&gt;&lt;span style=&#34;color:#0a0&#34;&gt;+			&amp;#34; of the MMIO BAR!\n&amp;#34;, gttSize, info.gtt_physical_base);
+&lt;/span&gt;&lt;/span&gt;&lt;/span&gt;&lt;span style=&#34;display:flex;&#34;&gt;&lt;span&gt;&lt;span style=&#34;color:#0a0&#34;&gt;+		return B_ERROR;
+&lt;/span&gt;&lt;/span&gt;&lt;/span&gt;&lt;span style=&#34;display:flex;&#34;&gt;&lt;span&gt;&lt;span style=&#34;color:#0a0&#34;&gt;+	}
+&lt;/span&gt;&lt;/span&gt;&lt;/span&gt;&lt;span style=&#34;display:flex;&#34;&gt;&lt;span&gt;&lt;span style=&#34;color:#0a0&#34;&gt;+
+&lt;/span&gt;&lt;/span&gt;&lt;/span&gt;&lt;span style=&#34;display:flex;&#34;&gt;&lt;span&gt;&lt;span style=&#34;color:#0a0&#34;&gt;+	if (info.type-&amp;gt;Generation() &amp;lt; 8) {
+&lt;/span&gt;&lt;/span&gt;&lt;/span&gt;&lt;span style=&#34;display:flex;&#34;&gt;&lt;span&gt;&lt;span style=&#34;color:#0a0&#34;&gt;+		// one 32 bit entry per page
+&lt;/span&gt;&lt;/span&gt;&lt;/span&gt;&lt;span style=&#34;display:flex;&#34;&gt;&lt;span&gt;&lt;span style=&#34;color:#0a0&#34;&gt;+		info.gtt_entries = gttSize / sizeof(uint32);
+&lt;/span&gt;&lt;/span&gt;&lt;/span&gt;&lt;span style=&#34;display:flex;&#34;&gt;&lt;span&gt;&lt;span style=&#34;color:#0a0&#34;&gt;+	} else {
+&lt;/span&gt;&lt;/span&gt;&lt;/span&gt;&lt;span style=&#34;display:flex;&#34;&gt;&lt;span&gt;&lt;span style=&#34;color:#0a0&#34;&gt;+		// TODO: Gen8+ uses 64 bit entries, which set_gtt_entry() does not
+&lt;/span&gt;&lt;/span&gt;&lt;/span&gt;&lt;span style=&#34;display:flex;&#34;&gt;&lt;span&gt;&lt;span style=&#34;color:#0a0&#34;&gt;+		// handle yet; keep the old (too small) count so we don&amp;#39;t scribble
+&lt;/span&gt;&lt;/span&gt;&lt;/span&gt;&lt;span style=&#34;display:flex;&#34;&gt;&lt;span&gt;&lt;span style=&#34;color:#0a0&#34;&gt;+		// over live entries with the scratch page loop.
+&lt;/span&gt;&lt;/span&gt;&lt;/span&gt;&lt;span style=&#34;display:flex;&#34;&gt;&lt;span&gt;&lt;span style=&#34;color:#0a0&#34;&gt;+		info.gtt_entries = gttSize / 4096;
+&lt;/span&gt;&lt;/span&gt;&lt;/span&gt;&lt;span style=&#34;display:flex;&#34;&gt;&lt;span&gt;&lt;span style=&#34;color:#0a0&#34;&gt;+	}
+&lt;/span&gt;&lt;/span&gt;&lt;/span&gt;&lt;/code&gt;&lt;/pre&gt;&lt;/div&gt;&lt;p&gt;Log before and after:&lt;/p&gt;
+&lt;pre tabindex=&#34;0&#34;&gt;&lt;code&gt;before: intel_gart: GTT base = 0xd0200000   (FireWire, bus 3)
+after:  intel_gart: GTT base = 0xd0080000, entries 131072
+&lt;/code&gt;&lt;/pre&gt;&lt;h2 id=&#34;4-status-page-one-missing-&#34;&gt;4. Status page: one missing &lt;code&gt;&amp;amp;&lt;/code&gt;&lt;/h2&gt;
+&lt;p&gt;&lt;code&gt;src/add-ons/kernel/drivers/graphics/intel_extreme/intel_extreme.cpp&lt;/code&gt;, &lt;code&gt;intel_extreme_init()&lt;/code&gt;. The old code passed the pointer&amp;rsquo;s value instead of its address, so the allocation failed with &lt;code&gt;B_BAD_VALUE&lt;/code&gt;. Nothing uses the page yet, but now it actually exists.&lt;/p&gt;
+&lt;div class=&#34;highlight&#34;&gt;&lt;pre tabindex=&#34;0&#34; style=&#34;background-color:#eed;-moz-tab-size:4;-o-tab-size:4;tab-size:4;-webkit-text-size-adjust:none;&#34;&gt;&lt;code class=&#34;language-diff&#34; data-lang=&#34;diff&#34;&gt;&lt;span style=&#34;display:flex;&#34;&gt;&lt;span&gt; 	if (intel_allocate_memory(info, B_PAGE_SIZE, 0, B_APERTURE_NEED_PHYSICAL,
+&lt;/span&gt;&lt;/span&gt;&lt;span style=&#34;display:flex;&#34;&gt;&lt;span&gt;&lt;span style=&#34;color:#a00&#34;&gt;-			(addr_t*)info.shared_info-&amp;gt;status_page,
+&lt;/span&gt;&lt;/span&gt;&lt;/span&gt;&lt;span style=&#34;display:flex;&#34;&gt;&lt;span&gt;&lt;span style=&#34;color:#0a0&#34;&gt;+			(addr_t*)&amp;amp;info.shared_info-&amp;gt;status_page,
+&lt;/span&gt;&lt;/span&gt;&lt;/span&gt;&lt;span style=&#34;display:flex;&#34;&gt;&lt;span&gt; 			&amp;amp;info.shared_info-&amp;gt;physical_status_page) == B_OK) {
+&lt;/span&gt;&lt;/span&gt;&lt;/code&gt;&lt;/pre&gt;&lt;/div&gt;&lt;h2 id=&#34;5-efi-loader-a-boot-splash-without-gop&#34;&gt;5. EFI loader: a boot splash without GOP&lt;/h2&gt;
+&lt;p&gt;Apple EFI 1.1 offers UGA only, so the loader found no GOP, set no frame buffer, and showed no splash. The display is running, though, so the loader now reads what the firmware left in the plane registers.&lt;/p&gt;
+&lt;p&gt;Two traps along the way:&lt;/p&gt;
+&lt;ul&gt;
+&lt;li&gt;&lt;strong&gt;The firmware frame buffer is tiled.&lt;/strong&gt; It&amp;rsquo;s at aperture &lt;code&gt;0x1000000&lt;/code&gt; with stride 8192 and covered by fence 1. Linear writes are only correct if a matching X fence covers the surface, so the loader checks for one.&lt;/li&gt;
+&lt;li&gt;&lt;strong&gt;The firmware frame buffer isn&amp;rsquo;t in stolen memory.&lt;/strong&gt; The GTT maps it to &lt;em&gt;boot services&lt;/em&gt; RAM, which the kernel reuses after &lt;code&gt;ExitBootServices()&lt;/code&gt;. Every splash write would scribble on kernel memory. Like Brick Top&amp;rsquo;s pigs, the page allocator eats whatever it&amp;rsquo;s given. The loader checks the GTT entries. If the buffer isn&amp;rsquo;t 1:1 stolen, it moves the plane to aperture offset 0 (stolen, fenced identically) when the splash appears, or else gives up.&lt;/li&gt;
+&lt;/ul&gt;
+&lt;p&gt;&lt;code&gt;src/system/boot/platform/efi/video.cpp&lt;/code&gt;: about 250 new lines, restricted to i965/G4x device IDs. The parts that matter:&lt;/p&gt;
+&lt;div class=&#34;highlight&#34;&gt;&lt;pre tabindex=&#34;0&#34; style=&#34;background-color:#eed;-moz-tab-size:4;-o-tab-size:4;tab-size:4;-webkit-text-size-adjust:none;&#34;&gt;&lt;code class=&#34;language-cpp&#34; data-lang=&#34;cpp&#34;&gt;&lt;span style=&#34;display:flex;&#34;&gt;&lt;span&gt;&lt;span style=&#34;color:#228b22&#34;&gt;/*!	Returns whether the GTT maps the aperture range 1:1 to stolen memory.
+&lt;/span&gt;&lt;/span&gt;&lt;/span&gt;&lt;span style=&#34;display:flex;&#34;&gt;&lt;span&gt;&lt;span style=&#34;color:#228b22&#34;&gt;	Only that is safe to draw to: the firmware may have put its frame buffer
+&lt;/span&gt;&lt;/span&gt;&lt;/span&gt;&lt;span style=&#34;display:flex;&#34;&gt;&lt;span&gt;&lt;span style=&#34;color:#228b22&#34;&gt;	into boot services memory, which the kernel reuses.
+&lt;/span&gt;&lt;/span&gt;&lt;/span&gt;&lt;span style=&#34;display:flex;&#34;&gt;&lt;span&gt;&lt;span style=&#34;color:#228b22&#34;&gt;*/&lt;/span&gt;
+&lt;/span&gt;&lt;/span&gt;&lt;span style=&#34;display:flex;&#34;&gt;&lt;span&gt;&lt;span style=&#34;color:#8b008b;font-weight:bold&#34;&gt;static&lt;/span&gt; &lt;span style=&#34;color:#00688b;font-weight:bold&#34;&gt;bool&lt;/span&gt;
+&lt;/span&gt;&lt;/span&gt;&lt;span style=&#34;display:flex;&#34;&gt;&lt;span&gt;&lt;span style=&#34;color:#008b45&#34;&gt;intel_maps_stolen_memory&lt;/span&gt;(efi_pci_root_bridge_io_protocol* pci, uint64 gtt,
+&lt;/span&gt;&lt;/span&gt;&lt;span style=&#34;display:flex;&#34;&gt;&lt;span&gt;	uint64 stolenBase, uint32 offset, uint32 size)
+&lt;/span&gt;&lt;/span&gt;&lt;span style=&#34;display:flex;&#34;&gt;&lt;span&gt;{
+&lt;/span&gt;&lt;/span&gt;&lt;span style=&#34;display:flex;&#34;&gt;&lt;span&gt;	&lt;span style=&#34;color:#8b008b;font-weight:bold&#34;&gt;for&lt;/span&gt; (uint32 page = offset; page &amp;lt; offset + size; page += B_PAGE_SIZE) {
+&lt;/span&gt;&lt;/span&gt;&lt;span style=&#34;display:flex;&#34;&gt;&lt;span&gt;		uint32 entry = intel_read32(pci, gtt + page / B_PAGE_SIZE * &lt;span style=&#34;color:#b452cd&#34;&gt;4&lt;/span&gt;);
+&lt;/span&gt;&lt;/span&gt;&lt;span style=&#34;display:flex;&#34;&gt;&lt;span&gt;		uint64 address = (entry &amp;amp; ~&lt;span style=&#34;color:#b452cd&#34;&gt;0xfffULL&lt;/span&gt;) | ((uint64)(entry &amp;amp; &lt;span style=&#34;color:#b452cd&#34;&gt;0xf0&lt;/span&gt;) &amp;lt;&amp;lt; &lt;span style=&#34;color:#b452cd&#34;&gt;28&lt;/span&gt;);
+&lt;/span&gt;&lt;/span&gt;&lt;span style=&#34;display:flex;&#34;&gt;&lt;span&gt;		&lt;span style=&#34;color:#8b008b;font-weight:bold&#34;&gt;if&lt;/span&gt; ((entry &amp;amp; GTT_ENTRY_VALID) == &lt;span style=&#34;color:#b452cd&#34;&gt;0&lt;/span&gt; || address != stolenBase + page)
+&lt;/span&gt;&lt;/span&gt;&lt;span style=&#34;display:flex;&#34;&gt;&lt;span&gt;			&lt;span style=&#34;color:#8b008b;font-weight:bold&#34;&gt;return&lt;/span&gt; &lt;span style=&#34;color:#658b00&#34;&gt;false&lt;/span&gt;;
+&lt;/span&gt;&lt;/span&gt;&lt;span style=&#34;display:flex;&#34;&gt;&lt;span&gt;	}
+&lt;/span&gt;&lt;/span&gt;&lt;span style=&#34;display:flex;&#34;&gt;&lt;span&gt;	&lt;span style=&#34;color:#8b008b;font-weight:bold&#34;&gt;return&lt;/span&gt; &lt;span style=&#34;color:#658b00&#34;&gt;true&lt;/span&gt;;
+&lt;/span&gt;&lt;/span&gt;&lt;span style=&#34;display:flex;&#34;&gt;&lt;span&gt;}
+&lt;/span&gt;&lt;/span&gt;&lt;/code&gt;&lt;/pre&gt;&lt;/div&gt;&lt;p&gt;In &lt;code&gt;find_intel_firmware_frame_buffer()&lt;/code&gt;, after validating plane, pipe source size, stride and fence:&lt;/p&gt;
+&lt;div class=&#34;highlight&#34;&gt;&lt;pre tabindex=&#34;0&#34; style=&#34;background-color:#eed;-moz-tab-size:4;-o-tab-size:4;tab-size:4;-webkit-text-size-adjust:none;&#34;&gt;&lt;code class=&#34;language-cpp&#34; data-lang=&#34;cpp&#34;&gt;&lt;span style=&#34;display:flex;&#34;&gt;&lt;span&gt;		&lt;span style=&#34;color:#00688b;font-weight:bold&#34;&gt;bool&lt;/span&gt; relocate = !intel_maps_stolen_memory(pci, gtt, stolenBase,
+&lt;/span&gt;&lt;/span&gt;&lt;span style=&#34;display:flex;&#34;&gt;&lt;span&gt;			surface, size);
+&lt;/span&gt;&lt;/span&gt;&lt;span style=&#34;display:flex;&#34;&gt;&lt;span&gt;		&lt;span style=&#34;color:#8b008b;font-weight:bold&#34;&gt;if&lt;/span&gt; (relocate) {
+&lt;/span&gt;&lt;/span&gt;&lt;span style=&#34;display:flex;&#34;&gt;&lt;span&gt;			&lt;span style=&#34;color:#228b22&#34;&gt;// Apple EFI scans out of boot services memory; use the start of
+&lt;/span&gt;&lt;/span&gt;&lt;/span&gt;&lt;span style=&#34;display:flex;&#34;&gt;&lt;span&gt;			&lt;span style=&#34;color:#228b22&#34;&gt;// the aperture instead
+&lt;/span&gt;&lt;/span&gt;&lt;/span&gt;&lt;span style=&#34;display:flex;&#34;&gt;&lt;span&gt;			surface = &lt;span style=&#34;color:#b452cd&#34;&gt;0&lt;/span&gt;;
+&lt;/span&gt;&lt;/span&gt;&lt;span style=&#34;display:flex;&#34;&gt;&lt;span&gt;			&lt;span style=&#34;color:#8b008b;font-weight:bold&#34;&gt;if&lt;/span&gt; (!intel_maps_stolen_memory(pci, gtt, stolenBase, surface, size)
+&lt;/span&gt;&lt;/span&gt;&lt;span style=&#34;display:flex;&#34;&gt;&lt;span&gt;				|| (tiled &amp;amp;&amp;amp; !intel_is_fenced(pci, mmio, surface, size,
+&lt;/span&gt;&lt;/span&gt;&lt;span style=&#34;display:flex;&#34;&gt;&lt;span&gt;					stride))) {
+&lt;/span&gt;&lt;/span&gt;&lt;span style=&#34;display:flex;&#34;&gt;&lt;span&gt;				dprintf(&lt;span style=&#34;color:#cd5555&#34;&gt;&amp;#34;Intel firmware frame buffer is not in stolen memory,&amp;#34;&lt;/span&gt;
+&lt;/span&gt;&lt;/span&gt;&lt;span style=&#34;display:flex;&#34;&gt;&lt;span&gt;					&lt;span style=&#34;color:#cd5555&#34;&gt;&amp;#34; ignoring it&lt;/span&gt;&lt;span style=&#34;color:#cd5555&#34;&gt;\n&lt;/span&gt;&lt;span style=&#34;color:#cd5555&#34;&gt;&amp;#34;&lt;/span&gt;);
+&lt;/span&gt;&lt;/span&gt;&lt;span style=&#34;display:flex;&#34;&gt;&lt;span&gt;				&lt;span style=&#34;color:#8b008b;font-weight:bold&#34;&gt;continue&lt;/span&gt;;
+&lt;/span&gt;&lt;/span&gt;&lt;span style=&#34;display:flex;&#34;&gt;&lt;span&gt;			}
+&lt;/span&gt;&lt;/span&gt;&lt;span style=&#34;display:flex;&#34;&gt;&lt;span&gt;		}
+&lt;/span&gt;&lt;/span&gt;&lt;span style=&#34;display:flex;&#34;&gt;&lt;span&gt;		...
+&lt;/span&gt;&lt;/span&gt;&lt;span style=&#34;display:flex;&#34;&gt;&lt;span&gt;		&lt;span style=&#34;color:#228b22&#34;&gt;// only enabled in platform_switch_to_logo()
+&lt;/span&gt;&lt;/span&gt;&lt;/span&gt;&lt;span style=&#34;display:flex;&#34;&gt;&lt;span&gt;		gKernelArgs.frame_buffer.enabled = &lt;span style=&#34;color:#658b00&#34;&gt;false&lt;/span&gt;;
+&lt;/span&gt;&lt;/span&gt;&lt;/code&gt;&lt;/pre&gt;&lt;/div&gt;&lt;p&gt;The relocation is deferred to &lt;code&gt;platform_switch_to_logo()&lt;/code&gt;, so the firmware text console, and with it the boot menu, keeps working until then:&lt;/p&gt;
+&lt;div class=&#34;highlight&#34;&gt;&lt;pre tabindex=&#34;0&#34; style=&#34;background-color:#eed;-moz-tab-size:4;-o-tab-size:4;tab-size:4;-webkit-text-size-adjust:none;&#34;&gt;&lt;code class=&#34;language-cpp&#34; data-lang=&#34;cpp&#34;&gt;&lt;span style=&#34;display:flex;&#34;&gt;&lt;span&gt;&lt;span style=&#34;color:#8b008b;font-weight:bold&#34;&gt;static&lt;/span&gt; &lt;span style=&#34;color:#00688b;font-weight:bold&#34;&gt;void&lt;/span&gt;
+&lt;/span&gt;&lt;/span&gt;&lt;span style=&#34;display:flex;&#34;&gt;&lt;span&gt;&lt;span style=&#34;color:#008b45&#34;&gt;switch_to_intel_frame_buffer&lt;/span&gt;()
+&lt;/span&gt;&lt;/span&gt;&lt;span style=&#34;display:flex;&#34;&gt;&lt;span&gt;{
+&lt;/span&gt;&lt;/span&gt;&lt;span style=&#34;display:flex;&#34;&gt;&lt;span&gt;	&lt;span style=&#34;color:#8b008b;font-weight:bold&#34;&gt;if&lt;/span&gt; (sIntelFrameBuffer.relocate) {
+&lt;/span&gt;&lt;/span&gt;&lt;span style=&#34;display:flex;&#34;&gt;&lt;span&gt;		...
+&lt;/span&gt;&lt;/span&gt;&lt;span style=&#34;display:flex;&#34;&gt;&lt;span&gt;		&lt;span style=&#34;color:#228b22&#34;&gt;// the offsets are latched by the surface write
+&lt;/span&gt;&lt;/span&gt;&lt;/span&gt;&lt;span style=&#34;display:flex;&#34;&gt;&lt;span&gt;		intel_write32(pci, mmio + INTEL_PLANE_LINEAR_OFFSET(plane), &lt;span style=&#34;color:#b452cd&#34;&gt;0&lt;/span&gt;);
+&lt;/span&gt;&lt;/span&gt;&lt;span style=&#34;display:flex;&#34;&gt;&lt;span&gt;		intel_write32(pci, mmio + INTEL_PLANE_TILE_OFFSET(plane), &lt;span style=&#34;color:#b452cd&#34;&gt;0&lt;/span&gt;);
+&lt;/span&gt;&lt;/span&gt;&lt;span style=&#34;display:flex;&#34;&gt;&lt;span&gt;		intel_write32(pci, mmio + INTEL_PLANE_SURFACE(plane),
+&lt;/span&gt;&lt;/span&gt;&lt;span style=&#34;display:flex;&#34;&gt;&lt;span&gt;			sIntelFrameBuffer.surface);
+&lt;/span&gt;&lt;/span&gt;&lt;span style=&#34;display:flex;&#34;&gt;&lt;span&gt;		sIntelFrameBuffer.relocate = &lt;span style=&#34;color:#658b00&#34;&gt;false&lt;/span&gt;;
+&lt;/span&gt;&lt;/span&gt;&lt;span style=&#34;display:flex;&#34;&gt;&lt;span&gt;	}
+&lt;/span&gt;&lt;/span&gt;&lt;span style=&#34;display:flex;&#34;&gt;&lt;span&gt;
+&lt;/span&gt;&lt;/span&gt;&lt;span style=&#34;display:flex;&#34;&gt;&lt;span&gt;	gKernelArgs.frame_buffer.enabled = &lt;span style=&#34;color:#658b00&#34;&gt;true&lt;/span&gt;;
+&lt;/span&gt;&lt;/span&gt;&lt;span style=&#34;display:flex;&#34;&gt;&lt;span&gt;}
+&lt;/span&gt;&lt;/span&gt;&lt;/code&gt;&lt;/pre&gt;&lt;/div&gt;&lt;div class=&#34;highlight&#34;&gt;&lt;pre tabindex=&#34;0&#34; style=&#34;background-color:#eed;-moz-tab-size:4;-o-tab-size:4;tab-size:4;-webkit-text-size-adjust:none;&#34;&gt;&lt;code class=&#34;language-diff&#34; data-lang=&#34;diff&#34;&gt;&lt;span style=&#34;display:flex;&#34;&gt;&lt;span&gt; 		dprintf(&amp;#34;GOP protocol not found\n&amp;#34;);
+&lt;/span&gt;&lt;/span&gt;&lt;span style=&#34;display:flex;&#34;&gt;&lt;span&gt; 		gKernelArgs.frame_buffer.enabled = false;
+&lt;/span&gt;&lt;/span&gt;&lt;span style=&#34;display:flex;&#34;&gt;&lt;span&gt; 		sGraphicsOutput = NULL;
+&lt;/span&gt;&lt;/span&gt;&lt;span style=&#34;display:flex;&#34;&gt;&lt;span&gt;&lt;span style=&#34;color:#a00&#34;&gt;-		return B_ERROR;
+&lt;/span&gt;&lt;/span&gt;&lt;/span&gt;&lt;span style=&#34;display:flex;&#34;&gt;&lt;span&gt;&lt;span style=&#34;color:#0a0&#34;&gt;+		sFirmwareFrameBuffer = find_intel_firmware_frame_buffer();
+&lt;/span&gt;&lt;/span&gt;&lt;/span&gt;&lt;span style=&#34;display:flex;&#34;&gt;&lt;span&gt;&lt;span style=&#34;color:#0a0&#34;&gt;+		return sFirmwareFrameBuffer ? B_OK : B_ERROR;
+&lt;/span&gt;&lt;/span&gt;&lt;/span&gt;&lt;/code&gt;&lt;/pre&gt;&lt;/div&gt;&lt;div class=&#34;highlight&#34;&gt;&lt;pre tabindex=&#34;0&#34; style=&#34;background-color:#eed;-moz-tab-size:4;-o-tab-size:4;tab-size:4;-webkit-text-size-adjust:none;&#34;&gt;&lt;code class=&#34;language-diff&#34; data-lang=&#34;diff&#34;&gt;&lt;span style=&#34;display:flex;&#34;&gt;&lt;span&gt; platform_switch_to_logo(void)
+&lt;/span&gt;&lt;/span&gt;&lt;span style=&#34;display:flex;&#34;&gt;&lt;span&gt; {
+&lt;/span&gt;&lt;/span&gt;&lt;span style=&#34;display:flex;&#34;&gt;&lt;span&gt;&lt;span style=&#34;color:#0a0&#34;&gt;+	if (sFirmwareFrameBuffer) {
+&lt;/span&gt;&lt;/span&gt;&lt;/span&gt;&lt;span style=&#34;display:flex;&#34;&gt;&lt;span&gt;&lt;span style=&#34;color:#0a0&#34;&gt;+		// no mode setting possible, keep what the firmware set up
+&lt;/span&gt;&lt;/span&gt;&lt;/span&gt;&lt;span style=&#34;display:flex;&#34;&gt;&lt;span&gt;&lt;span style=&#34;color:#0a0&#34;&gt;+		switch_to_intel_frame_buffer();
+&lt;/span&gt;&lt;/span&gt;&lt;/span&gt;&lt;span style=&#34;display:flex;&#34;&gt;&lt;span&gt;&lt;span style=&#34;color:#0a0&#34;&gt;+		video_display_splash(gKernelArgs.frame_buffer.physical_buffer.start);
+&lt;/span&gt;&lt;/span&gt;&lt;/span&gt;&lt;span style=&#34;display:flex;&#34;&gt;&lt;span&gt;&lt;span style=&#34;color:#0a0&#34;&gt;+		return;
+&lt;/span&gt;&lt;/span&gt;&lt;/span&gt;&lt;span style=&#34;display:flex;&#34;&gt;&lt;span&gt;&lt;span style=&#34;color:#0a0&#34;&gt;+	}
+&lt;/span&gt;&lt;/span&gt;&lt;/span&gt;&lt;/code&gt;&lt;/pre&gt;&lt;/div&gt;&lt;p&gt;Result:&lt;/p&gt;
+&lt;pre tabindex=&#34;0&#34;&gt;&lt;code&gt;using Intel firmware frame buffer: 1280x800, stride 8192, at 0xc0000000 (fenced) (moved to stolen memory)
+&lt;/code&gt;&lt;/pre&gt;&lt;p&gt;&lt;code&gt;src/system/boot/platform/generic/video_splash.cpp&lt;/code&gt;: the splash clears &lt;code&gt;bytes_per_row * height&lt;/code&gt; instead of &lt;code&gt;width * height * 4&lt;/code&gt;. The old size cleared only 62% of an 8192-stride screen.&lt;/p&gt;
+&lt;div class=&#34;highlight&#34;&gt;&lt;pre tabindex=&#34;0&#34; style=&#34;background-color:#eed;-moz-tab-size:4;-o-tab-size:4;tab-size:4;-webkit-text-size-adjust:none;&#34;&gt;&lt;code class=&#34;language-diff&#34; data-lang=&#34;diff&#34;&gt;&lt;span style=&#34;display:flex;&#34;&gt;&lt;span&gt;&lt;span style=&#34;color:#a00&#34;&gt;-	addr_t size = min_c(gKernelArgs.frame_buffer.width
+&lt;/span&gt;&lt;/span&gt;&lt;/span&gt;&lt;span style=&#34;display:flex;&#34;&gt;&lt;span&gt;&lt;span style=&#34;color:#a00&#34;&gt;-			* gKernelArgs.frame_buffer.height * 4u,
+&lt;/span&gt;&lt;/span&gt;&lt;/span&gt;&lt;span style=&#34;display:flex;&#34;&gt;&lt;span&gt;&lt;span style=&#34;color:#0a0&#34;&gt;+	addr_t size = min_c((addr_t)gKernelArgs.frame_buffer.bytes_per_row
+&lt;/span&gt;&lt;/span&gt;&lt;/span&gt;&lt;span style=&#34;display:flex;&#34;&gt;&lt;span&gt;&lt;span style=&#34;color:#0a0&#34;&gt;+			* gKernelArgs.frame_buffer.height,
+&lt;/span&gt;&lt;/span&gt;&lt;/span&gt;&lt;span style=&#34;display:flex;&#34;&gt;&lt;span&gt; 		gKernelArgs.frame_buffer.physical_buffer.size);
+&lt;/span&gt;&lt;/span&gt;&lt;/code&gt;&lt;/pre&gt;&lt;/div&gt;&lt;p&gt;Side note: if your splash shows icons but a nearly black logo, that isn&amp;rsquo;t a bug. Default builds use &lt;code&gt;images-sans-tm.h&lt;/code&gt;. Build with &lt;code&gt;--distro-compatibility official&lt;/code&gt; to get the real logo.&lt;/p&gt;
+&lt;h2 id=&#34;who-is-affected&#34;&gt;Who is affected&lt;/h2&gt;
+&lt;table&gt;
+	&lt;thead&gt;
+			&lt;tr&gt;
+					&lt;th&gt;Change&lt;/th&gt;
+					&lt;th&gt;Reaches&lt;/th&gt;
+					&lt;th&gt;Risk&lt;/th&gt;
+			&lt;/tr&gt;
+	&lt;/thead&gt;
+	&lt;tbody&gt;
+			&lt;tr&gt;
+					&lt;td&gt;Fence clearing&lt;/td&gt;
+					&lt;td&gt;Gen4–5&lt;/td&gt;
+					&lt;td&gt;Low: Haiku doesn&amp;rsquo;t use tiling&lt;/td&gt;
+			&lt;/tr&gt;
+			&lt;tr&gt;
+					&lt;td&gt;Plane/pipe select, tile offset, plane off, early stride&lt;/td&gt;
+					&lt;td&gt;Gen ≤4 (tile offset: Gen4)&lt;/td&gt;
+					&lt;td&gt;Low: makes Haiku&amp;rsquo;s existing plane B → pipe B assumption explicit&lt;/td&gt;
+			&lt;/tr&gt;
+			&lt;tr&gt;
+					&lt;td&gt;GTT location&lt;/td&gt;
+					&lt;td&gt;Gen3 (945, G33, Pineview), i965&lt;/td&gt;
+					&lt;td&gt;&lt;strong&gt;Medium:&lt;/strong&gt; changes where the GTT is written; matches Linux &lt;code&gt;intel-gtt.c&lt;/code&gt;&lt;/td&gt;
+			&lt;/tr&gt;
+			&lt;tr&gt;
+					&lt;td&gt;GTT entry count&lt;/td&gt;
+					&lt;td&gt;Gen &amp;lt; 8&lt;/td&gt;
+					&lt;td&gt;Low: unused entries now point at the scratch page, as on Linux&lt;/td&gt;
+			&lt;/tr&gt;
+			&lt;tr&gt;
+					&lt;td&gt;Status page &lt;code&gt;&amp;amp;&lt;/code&gt;&lt;/td&gt;
+					&lt;td&gt;all&lt;/td&gt;
+					&lt;td&gt;Very low&lt;/td&gt;
+			&lt;/tr&gt;
+			&lt;tr&gt;
+					&lt;td&gt;EFI frame buffer&lt;/td&gt;
+					&lt;td&gt;No GOP + Intel i965/G4x at 0:2.0 only&lt;/td&gt;
+					&lt;td&gt;Very low: every other machine takes the old path&lt;/td&gt;
+			&lt;/tr&gt;
+			&lt;tr&gt;
+					&lt;td&gt;Splash clear size&lt;/td&gt;
+					&lt;td&gt;all&lt;/td&gt;
+					&lt;td&gt;Very low: exact instead of estimated&lt;/td&gt;
+			&lt;/tr&gt;
+	&lt;/tbody&gt;
+&lt;/table&gt;
+&lt;h2 id=&#34;testing-wanted&#34;&gt;Testing wanted&lt;/h2&gt;
+&lt;p&gt;Only one MacBook4,1 has run this. Boot tests are especially welcome on:&lt;/p&gt;
+&lt;ul&gt;
+&lt;li&gt;&lt;strong&gt;945 / G33 / Pineview&lt;/strong&gt; (lots of netbooks): the GTT now comes from BAR 0x1c. Check that &lt;code&gt;intel_gart: GTT base&lt;/code&gt; matches that BAR.&lt;/li&gt;
+&lt;li&gt;&lt;strong&gt;Ironlake&lt;/strong&gt;: fence clearing.&lt;/li&gt;
+&lt;li&gt;&lt;strong&gt;G4x&lt;/strong&gt; and any other GOP-less Intel EFI machine.&lt;/li&gt;
+&lt;/ul&gt;
+&lt;p&gt;If it breaks, please send the syslog; it&amp;rsquo;s worth more than a thousand words. &lt;em&gt;&amp;ldquo;It&amp;rsquo;s been emotional.&amp;rdquo;&lt;/em&gt;&lt;/p&gt;
+&lt;h2 id=&#34;sources-of-documentation&#34;&gt;Sources of Documentation&lt;/h2&gt;
+&lt;ol&gt;
+&lt;li&gt;Haiku boot logs. Everything specific to Macbook4,1 came from them: the fence addresses, stride 8192, stolen memory at 0xbf000000, the FireWire controller at 0xd0200000, and the boot services memory in the EFI map.&lt;/li&gt;
+&lt;li&gt;Haiku&amp;rsquo;s source code.&lt;/li&gt;
+&lt;li&gt;Intel&amp;rsquo;s official manuals (PRMs), published for open-source driver developers: Index: &lt;a href=&#34;https://www.intel.com/content/www/us/en/docs/graphics-for-linux/developer-reference/1-0/overview.html&#34;&gt;https://www.intel.com/content/www/us/en/docs/graphics-for-linux/developer-reference/1-0/overview.html&lt;/a&gt;&lt;/li&gt;
+&lt;/ol&gt;
+&lt;ul&gt;
+&lt;li&gt;The volume for my chip is &amp;ldquo;Intel 965 Express Chipset Family and Intel G35 Express Chipset Graphics Controller PRM&amp;rdquo; (2008):
+&lt;ul&gt;
+&lt;li&gt;Vol. 1 covers the GTT, fences and memory interface.&lt;/li&gt;
+&lt;li&gt;Vol. 3 covers the display registers: plane control, stride, surface, tile offset.&lt;/li&gt;
+&lt;/ul&gt;
+&lt;/li&gt;
+&lt;li&gt;&amp;ldquo;Mobile Intel 965 Express Chipset Family Datasheet&amp;rdquo; covers the PCI configuration registers, such as stolen memory size (GGC, 0x52) and stolen
+memory base (BSM, 0x5C).&lt;/li&gt;
+&lt;/ul&gt;
+&lt;ol start=&#34;4&#34;&gt;
+&lt;li&gt;Linux kernel source.&lt;/li&gt;
+&lt;/ol&gt;
+- http://localhost:1313/posts/haiku-on-macbook41/ - 2020--2026</description>
+        </item>
     
     
     
         <item>
         <title>World Around Us</title>
-        <link>https://kvantos.github.io/posts/world-around-us/</link>
+        <link>http://localhost:1313/posts/world-around-us/</link>
         <pubDate>Mon, 07 Dec 2020 01:05:47 +0200</pubDate>
         
-        <guid>https://kvantos.github.io/posts/world-around-us/</guid>
-        <description>Sergey Kviato Blog https://kvantos.github.io/posts/world-around-us/ -&lt;p&gt;We live in world, but what does world means to us? The surrounding reality? These are value judgments only. We live on planet Earth and this is our world. Humanity has expanded its habitat, agriculture, electricity transport are the achievements of modern mankind. A industrialized society can manage living conditions. But have we solved all problems? There is a world around us and there is garbage, destruction of natural resources. People began to think they on their own, the crown of evolution. But how many people can survive in the forest without technology? The truth is that we are part of the system, ecosystem, part of nature. And we are completely dependent on nature well-being.&lt;/p&gt;
-- https://kvantos.github.io/posts/world-around-us/ - 2020--2026</description>
+        <guid>http://localhost:1313/posts/world-around-us/</guid>
+        <description>Sergey Kviato Blog http://localhost:1313/posts/world-around-us/ -&lt;p&gt;We live in world, but what does world means to us? The surrounding reality? These are value judgments only. We live on planet Earth and this is our world. Humanity has expanded its habitat, agriculture, electricity transport are the achievements of modern mankind. A industrialized society can manage living conditions. But have we solved all problems? There is a world around us and there is garbage, destruction of natural resources. People began to think they on their own, the crown of evolution. But how many people can survive in the forest without technology? The truth is that we are part of the system, ecosystem, part of nature. And we are completely dependent on nature well-being.&lt;/p&gt;
+- http://localhost:1313/posts/world-around-us/ - 2020--2026</description>
         </item>
     
     
     
         <item>
         <title>Udev Device Mapping for Daily Tasks</title>
-        <link>https://kvantos.github.io/posts/udev-device-mapping/</link>
+        <link>http://localhost:1313/posts/udev-device-mapping/</link>
         <pubDate>Sun, 06 Dec 2020 22:36:36 +0200</pubDate>
         
-        <guid>https://kvantos.github.io/posts/udev-device-mapping/</guid>
-        <description>Sergey Kviato Blog https://kvantos.github.io/posts/udev-device-mapping/ -&lt;p&gt;Does USB device should always have specific access rights? Or network cards must have specific names? For such questions, and even more, Linux has a standard tool in its arsenal &amp;ndash; UDEV. UDEV is a userspace system that allows you to identify devices based on their properties, and register userspace handlers.&lt;/p&gt;
+        <guid>http://localhost:1313/posts/udev-device-mapping/</guid>
+        <description>Sergey Kviato Blog http://localhost:1313/posts/udev-device-mapping/ -&lt;p&gt;Does USB device should always have specific access rights? Or network cards must have specific names? For such questions, and even more, Linux has a standard tool in its arsenal &amp;ndash; UDEV. UDEV is a userspace system that allows you to identify devices based on their properties, and register userspace handlers.&lt;/p&gt;
 &lt;h2 id=&#34;set-persistent-name-for-device&#34;&gt;Set persistent name for device.&lt;/h2&gt;
 &lt;p&gt;The task is to make persistent drive name. To do this, you need to create a new UDEV rule. It is better to create your own separate config for custom rules:&lt;/p&gt;
 &lt;pre tabindex=&#34;0&#34;&gt;&lt;code&gt;[root@amigo rules.d]# cd /etc/udev/rules.d
@@ -57,7 +420,7 @@ SYSFS{idVendor}==&amp;#34;055f&amp;#34;, SYSFS{idProduct}==&amp;#34;0409&amp;#34
 &lt;li&gt;&lt;a href=&#34;https://wiki.archlinux.org/index.php/Udev&#34;&gt;https://wiki.archlinux.org/index.php/Udev&lt;/a&gt;&lt;/li&gt;
 &lt;li&gt;&lt;a href=&#34;https://wiki.debian.org/udev&#34;&gt;https://wiki.debian.org/udev&lt;/a&gt;&lt;/li&gt;
 &lt;/ul&gt;
-- https://kvantos.github.io/posts/udev-device-mapping/ - 2020--2026</description>
+- http://localhost:1313/posts/udev-device-mapping/ - 2020--2026</description>
         </item>
     
     

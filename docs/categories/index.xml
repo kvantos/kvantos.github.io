@@ -16,10 +16,10 @@
 		
 			<atom:link href="https://kvantos.github.io/categories/index.xml" rel="self" type="application/rss+xml" />
 			<item>
-				<title>Haiku</title>
-				<link>https://kvantos.github.io/categories/haiku/</link>
+				<title>Haiku, RenkuOS</title>
+				<link>https://kvantos.github.io/categories/haiku-renkuos/</link>
 				<pubDate>Thu, 15 Oct 2026 22:00:00 +0200</pubDate>
-				<guid>https://kvantos.github.io/categories/haiku/</guid>
+				<guid>https://kvantos.github.io/categories/haiku-renkuos/</guid>
 				<description></description>
 			</item>
 			<item>

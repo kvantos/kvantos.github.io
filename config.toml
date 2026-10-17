@@ -1,7 +1,7 @@
 baseURL = "https://kvantos.github.io/"
 DefaultContentLanguage = "en" # Theme's display language, supports: en, fr, zh, zh-hant
 locale = "en-us"
-title = "Sergey Kviato Blog"
+title = "Kvantos Engineering Notes"
 copyright = "2020--2026"
 theme = "diary"
 publishdir = "docs"
@@ -19,14 +19,14 @@ publishdir = "docs"
     tabWidth = 4
 
 [params]
-subtitle = "Let’s see the shocking truth of my journey into the world of technology."
+subtitle = "Technical Notes & Systems Engineering by Kvantos"
 enableGitalk = false
 
 # Twitter Card and Open Graph settings
 enableOpenGraph = true
 enableTwitterCards = true
-title = "Sergey Kviato Blog" # will set 'og:site_name'
-description = "Let’s see the shocking truth of my journey into the world of technology."  # will set 'og:description'
+title = "Kvantos Engineering Notes" # will set 'og:site_name'
+description = "Technical Notes & Systems Engineering by Kvantos"  # will set 'og:description'
 
 [params.gitalk]
   owner = "kvantos"

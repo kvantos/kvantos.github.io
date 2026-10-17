@@ -2,7 +2,7 @@ baseURL = "https://kvantos.github.io/"
 DefaultContentLanguage = "en" # Theme's display language, supports: en, fr, zh, zh-hant
 locale = "en-us"
 title = "Kvantos Engineering Notes"
-copyright = "2020--2026"
+copyright = "2020–2026"
 theme = "diary"
 publishdir = "docs"
 
